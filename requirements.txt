@@ -1,3 +1,5 @@
 matplotlib
 networkx
-osmnxs
+osmnx
+pyrosm
+PyQt5
