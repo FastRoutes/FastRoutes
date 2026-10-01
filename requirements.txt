@@ -1,5 +1,0 @@
-matplotlib
-networkx
-osmnx
-pyrosm
-PyQt5

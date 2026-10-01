@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>FastRoutes - Mapa de Despacho</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+
+    <style>
+        body { margin: 0; padding: 0; font-family: sans-serif; }
+        #map { width: 100vw; height: 100vh; }
+        #panel {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: white;
+            padding: 15px;
+            border-radius: 8px;
+            z-index: 1000;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.3);
+            min-width: 200px;
+        }
+        select, button {
+            width: 100%;
+            margin-top: 8px;
+            padding: 8px;
+            cursor: pointer;
+        }
+        hr { border: 0; border-top: 1px solid #ccc; margin: 15px 0; }
+    </style>
+</head>
+<body>
+
+    <div id="panel">
+        <b>1. Ciudad base:</b>
+        <!-- Cada value tiene: latitud, longitud, nivel_de_zoom -->
+        <select id="ciudad" onchange="cambiarCiudad()">
+            <option value="-12.0464,-77.0428,12">Lima</option>
+            <option value="-16.4090,-71.5375,13">Arequipa</option>
+            <option value="-13.5320,-71.9675,14">Cusco</option>
+            <option value="-8.1091,-79.0215,13">Trujillo</option>
+            <option value="-5.1945,-80.6328,13">Piura</option>
+        </select>
+        
+        <hr>
+        
+        <b>2. Puntos de despacho:</b> <span id="contador">0</span>
+        <button onclick="limpiarMapa()">Limpiar Todo</button>
+
+        <button onclick="calcularRuta()" style="background-color: #28a745; color: white; font-weight: bold;">Calcular Ruta de Entrega</button>
+    </div>
+    
+    <div id="map"></div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    
+    <script>
+        // Inicializar el mapa con las coordenadas de la primera opción (Lima)
+        const mapa = L.map('map').setView([-12.0464, -77.0428], 12);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
+            maxZoom: 17,
+            attribution: '© OpenStreetMap contributors, Tiles style by Humanitarian OpenStreetMap Team'
+        }).addTo(mapa);
+
+        let puntosDespacho = [];
+        let marcadores = [];
+        let capaRuta = null;
+
+        // Función para mover el mapa cuando el usuario elige otra ciudad en el menú
+        function cambiarCiudad() {
+            const seleccion = document.getElementById('ciudad').value;
+            // Separar el texto del value en tres variables usando la coma
+            const [lat, lng, zoom] = seleccion.split(','); 
+            
+            // Mover la cámara a la nueva ciudad
+            mapa.setView([parseFloat(lat), parseFloat(lng)], parseInt(zoom));
+            
+            // Opcional: borrar los puntos si cambias de ciudad para evitar rutas cruzando el país
+            limpiarMapa();
+        }
+
+        mapa.on('click', function(e) {
+            const lat = e.latlng.lat;
+            const lng = e.latlng.lng;
+            
+            puntosDespacho.push([lng, lat]);
+            const marcador = L.marker([lat, lng]).addTo(mapa);
+            marcadores.push(marcador);
+            
+            document.getElementById('contador').innerText = puntosDespacho.length;
+        });
+
+        function limpiarMapa() {
+            puntosDespacho = [];
+            marcadores.forEach(m => mapa.removeLayer(m));
+            marcadores = [];
+            if (capaRuta) {
+                mapa.removeLayer(capaRuta);
+                capaRuta = null;
+            }
+            document.getElementById('contador').innerText = 0;
+        }
+
+        function calcularRuta() {
+            if (puntosDespacho.length < 2) {
+                alert("Selecciona al menos 2 puntos de despacho en el mapa.");
+                return;
+            }
+
+            // OSRM requiere las coordenadas en formato "lon,lat;lon,lat;..."
+            const coordenadasStr = puntosDespacho.map(p => `${p[0]},${p[1]}`).join(';');
+
+            // Construir la URL hacia el servidor público de OSRM
+            // source=first asegura que el primer clic sea el punto de partida (almacén)
+            // roundtrip=true hace que el vehículo regrese al punto de origen al terminar
+            const urlOSRM = `https://router.project-osrm.org/trip/v1/driving/${coordenadasStr}?roundtrip=true&source=first&geometries=geojson`;
+
+            // Enviar la petición a OSRM
+            fetch(urlOSRM)
+                .then(respuesta => respuesta.json())
+                .then(datos => {
+                    if (datos.code !== "Ok") {
+                        alert("No se pudo calcular la ruta. Intenta mover los puntos.");
+                        return;
+                    }
+
+                    // Borrar ruta anterior si existe
+                    if (capaRuta) {
+                        mapa.removeLayer(capaRuta);
+                    }
+
+                    // Extraer la geometría de la ruta óptima devuelta por OSRM
+                    const rutaGeoJSON = datos.trips[0].geometry;
+
+                    // Dibujar la ruta en el mapa con Leaflet
+                    capaRuta = L.geoJSON(rutaGeoJSON, {
+                        style: { color: '#007bff', weight: 5, opacity: 0.8 }
+                    }).addTo(mapa);
+                    
+                    console.log("Distancia total del viaje:", datos.trips[0].distance, "metros");
+                })
+                .catch(error => {
+                    console.error("Error de conexión:", error);
+                    alert("Error al conectar con el servidor de rutas.");
+                });
+        }
+    </script>
+</body>
+</html>
