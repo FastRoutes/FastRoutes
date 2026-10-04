@@ -14,76 +14,102 @@
         :root {
             --ink: #000000;
             --muted: #6b6f8d;
-            --violeta: #000000;
+            --violeta: #000000; 
             --violeta-suave: #ece8ff;
             --almacen: #12b886;
             --linea: #e4e5ee;
             --fondo: #ffffff;
+            --peligro: #ff4757;
         }
         * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; font-family: 'Sora', system-ui, sans-serif; color: var(--ink); }
+        body { margin: 0; padding: 0; font-family: 'Sora', system-ui, sans-serif; color: var(--ink); overflow: hidden; }
         #map { width: 100vw; height: 100vh; background: #e9eef2; }
 
+        /* --- SPLASH SCREEN --- */
+        #splash {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            z-index: 9999;
+            display: flex; flex-direction: column; justify-content: center; align-items: center;
+            transition: opacity 0.6s ease;
+        }
+        .splash-logo { font-size: 54px; letter-spacing: -1px; margin: 0; line-height: 1; }
+        .splash-logo .fast { font-weight: 800; color: var(--ink); }
+        .splash-logo .routes { font-weight: 300; color: var(--violeta); }
+        .splash-slogan { margin-top: 10px; font-size: 14px; font-weight: 600; color: var(--muted); }
+
+        /* --- PANEL DE CONTROL --- */
         #panel {
-            position: absolute;
-            top: 16px;
-            left: 16px;
-            width: 300px;
-            background: var(--fondo);
-            border-radius: 16px;
-            z-index: 1000;
+            position: absolute; top: 16px; left: 16px; width: 320px;
+            background: var(--fondo); border-radius: 16px; z-index: 1000;
             box-shadow: 0 8px 30px rgba(27, 27, 58, 0.18);
-            overflow: hidden;
+            overflow: visible; 
+            display: none; 
+            transform: translateY(-20px); opacity: 0; transition: all 0.5s ease;
         }
-        .marca {
-            padding: 18px 20px 14px;
-            background: var(--ink);
-            color: white;
-        }
-        .marca h1 { margin: 0; font-size: 26px; letter-spacing: -0.5px; line-height: 1; }
+        .marca { padding: 18px 20px 14px; background: var(--ink); color: white; display: flex; justify-content: space-between; align-items: center;}
+        .marca h1 { margin: 0; font-size: 22px; letter-spacing: -0.5px; line-height: 1; }
         .marca .fast { font-weight: 800; }
         .marca .routes { font-weight: 300; }
-        .marca p { margin: 6px 0 0; font-size: 12px; color: #b9bbd6; }
+        .paso-indicador { font-size: 11px; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 12px; }
 
         .cuerpo { padding: 16px 20px 20px; }
-        label.titulo { font-size: 13px; font-weight: 600; display: block; }
-        select, button {
-            width: 100%;
-            margin-top: 8px;
-            padding: 11px 12px;
-            font-family: inherit;
-            font-size: 14px;
-            border-radius: 10px;
-            cursor: pointer;
+        label.titulo { font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;}
+        .ayuda { font-size: 12px; color: var(--muted); margin: 0 0 12px 0; line-height: 1.4; }
+        
+        input, button {
+            width: 100%; padding: 11px 12px; font-family: inherit; font-size: 14px; border-radius: 10px;
         }
-        select { border: 1px solid var(--linea); background: white; color: var(--ink); }
-        button { border: 0; font-weight: 600; transition: transform .1s ease, box-shadow .15s ease; }
+        input { border: 1px solid var(--linea); background: white; color: var(--ink); margin-bottom: 12px; }
+        input:focus { outline: 2px solid var(--violeta); border-color: transparent; }
+        
+        button { border: 0; font-weight: 600; cursor: pointer; transition: transform .1s ease; margin-bottom: 8px;}
         button:active:not(:disabled) { transform: scale(0.98); }
-        button:disabled { opacity: 0.6; cursor: wait; }
-        button:focus-visible, select:focus-visible { outline: 3px solid var(--violeta); outline-offset: 2px; }
+        button:disabled { opacity: 0.5; cursor: not-allowed; }
+        .btn-principal { background: var(--violeta); color: white; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); }
         .btn-secundario { background: var(--violeta-suave); color: var(--violeta); }
-        .btn-principal { background: var(--violeta); color: white; box-shadow: 0 6px 16px rgba(91, 61, 245, 0.35); }
+        .btn-volver { background: transparent; color: var(--muted); padding: 5px; margin: 0; text-decoration: underline; font-size: 12px; }
 
-        hr { border: 0; border-top: 1px solid var(--linea); margin: 16px 0; }
-        .paradas { display: flex; justify-content: space-between; align-items: baseline; font-size: 13px; font-weight: 600; }
-        #contador { font-size: 22px; font-weight: 800; color: var(--violeta); }
-        .ayuda { font-size: 12px; color: var(--muted); margin: 4px 0 0; line-height: 1.5; }
+        .paso-contenedor { display: none; animation: fadeIn 0.3s ease; }
+        .paso-contenedor.activo { display: block; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
 
-        #resultado { margin-top: 14px; display: none; }
-        .metricas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+        /* --- AUTOCOMPLETADO DE CIUDADES --- */
+        .autocomplete-container { position: relative; width: 100%; margin-bottom: 12px; }
+        .autocomplete-container input { margin-bottom: 0; }
+        .autocomplete-list {
+            position: absolute; top: 100%; left: 0; right: 0; z-index: 2000;
+            background: white; border: 1px solid var(--linea); border-radius: 8px;
+            max-height: 200px; overflow-y: auto; margin-top: 4px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none;
+        }
+        .autocomplete-item { padding: 10px 12px; font-size: 14px; cursor: pointer; border-bottom: 1px solid var(--linea); }
+        .autocomplete-item:last-child { border-bottom: none; }
+        .autocomplete-item:hover { background: var(--violeta-suave); }
+
+        .buscador-flex { display: flex; gap: 8px; margin-bottom: 12px; }
+        .buscador-flex input { margin-bottom: 0; flex: 1; }
+        .buscador-flex button { margin-bottom: 0; width: auto; padding: 11px 16px; }
+        
+        .paradas { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f6f6fb; border-radius: 10px; margin-bottom: 12px;}
+        #contador { font-size: 20px; font-weight: 800; color: var(--violeta); }
+
+        .metricas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;}
         .metrica { background: #f6f6fb; border-radius: 10px; padding: 10px 12px; }
         .metrica span { display: block; font-size: 11px; color: var(--muted); }
-        .metrica b { font-size: 17px; }
-        .metrica.total { grid-column: 1 / -1; background: var(--violeta-suave); }
-        .metrica.total b { color: var(--violeta); font-size: 22px; }
+        .metrica b { font-size: 16px; }
+        .metrica.total { grid-column: 1 / -1; background: var(--almacen); color: white;}
+        .metrica.total span { color: rgba(255,255,255,0.8); }
 
-        /* Marcadores */
         .pin { display: flex; align-items: center; justify-content: center; border-radius: 50%;
-               color: white; font-weight: 800; font-family: 'Sora', sans-serif;
-               border: 3px solid white; box-shadow: 0 3px 10px rgba(27,27,58,.4); }
+               color: white; font-weight: 800; font-family: 'Sora', sans-serif; cursor: pointer;
+               border: 3px solid white; box-shadow: 0 3px 10px rgba(27,27,58,.4); transition: transform 0.2s;}
+        .pin:hover { transform: scale(1.1); }
         .pin-almacen { width: 38px; height: 38px; background: var(--almacen); }
         .pin-entrega { width: 30px; height: 30px; background: var(--violeta); font-size: 13px; }
-
+        
         .leaflet-control-zoom { border: 0 !important; box-shadow: 0 4px 14px rgba(27,27,58,.2) !important; }
 
         @media (max-width: 600px) {
@@ -94,42 +120,80 @@
 </head>
 <body>
 
+    <div id="splash">
+        <h1 class="splash-logo"><span class="fast">FAST</span><span class="routes">Routes</span></h1>
+        <div class="splash-slogan">Para ti, JJ...</div>
+    </div>
+
     <div id="panel">
         <div class="marca">
             <h1><span class="fast">FAST</span><span class="routes">Routes</span></h1>
-            <p>La ruta más corta para todas tus entregas</p>
+            <span id="indicadorPaso" class="paso-indicador">Paso 1 de 4</span>
         </div>
 
         <div class="cuerpo">
-            <label class="titulo" for="ciudad">Ciudad base</label>
-            <!-- Cada value tiene: latitud, longitud, nivel_de_zoom -->
-            <select id="ciudad" onchange="cambiarCiudad()">
-                <option value="-12.0464,-77.0428,12">Lima</option>
-                <option value="-16.4090,-71.5375,13">Arequipa</option>
-                <option value="-13.5320,-71.9675,14">Cusco</option>
-                <option value="-8.1091,-79.0215,13">Trujillo</option>
-                <option value="-5.1945,-80.6328,13">Piura</option>
-            </select>
+            
+            <div id="paso1" class="paso-contenedor activo">
+                <label class="titulo">¿En qué ciudad realizarás las entregas?</label>
+                <p class="ayuda">Escribe y selecciona una opción para continuar.</p>
+                
+                <div class="autocomplete-container">
+                    <input type="text" id="buscadorCiudad" placeholder="Ej. Lima, Cusco..." autocomplete="off">
+                    <div id="listaCiudades" class="autocomplete-list"></div>
+                </div>
+                
+                <input type="hidden" id="ciudadLat" value="-12.0464">
+                <input type="hidden" id="ciudadLng" value="-77.0428">
+                <input type="hidden" id="ciudadNombre" value="Lima">
 
-            <hr>
+                <button id="btnContinuarPaso1" class="btn-principal" onclick="irAPaso(2)" disabled>Continuar</button>
+            </div>
 
-            <div class="paradas"><span>Puntos de despacho</span><span id="contador">0</span></div>
-            <p class="ayuda">Toca el mapa: primero el almacén y luego cada entrega.</p>
+            <div id="paso2" class="paso-contenedor">
+                <label class="titulo">¿Dónde está ubicado tu negocio?</label>
+                <p class="ayuda">Toca el mapa o busca una dirección para establecer el punto de partida y retorno.</p>
+                
+                <div class="buscador-flex">
+                    <input type="text" id="dirNegocio" placeholder="Ej. Av. Larco 123">
+                    <button onclick="buscarDireccion('dirNegocio')" class="btn-secundario">Buscar</button>
+                </div>
 
-            <button class="btn-secundario" onclick="limpiarMapa()">Limpiar todo</button>
-            <button id="btnRuta" class="btn-principal" onclick="calcularRuta()">Calcular ruta de entrega</button>
+                <button id="btnConfirmaNegocio" class="btn-principal" onclick="irAPaso(3)" disabled>Confirmar Negocio</button>
+                <button class="btn-volver" onclick="irAPaso(1)">← Volver a ciudad</button>
+            </div>
 
-            <div id="resultado">
-                <hr>
+            <div id="paso3" class="paso-contenedor">
+                <label class="titulo">¿Dónde están ubicadas las entregas?</label>
+                <p class="ayuda">Toca el mapa o busca direcciones. <b>Toca un marcador en el mapa para eliminarlo.</b> (Radio máximo: 15km)</p>
+
+                <div class="buscador-flex">
+                    <input type="text" id="dirDespacho" placeholder="Ej. Plaza San Miguel">
+                    <button onclick="buscarDireccion('dirDespacho')" class="btn-secundario">Añadir</button>
+                </div>
+
+                <div class="paradas">
+                    <span>Entregas registradas:</span>
+                    <span id="contador">0</span>
+                </div>
+
+                <button id="btnCalcularRuta" class="btn-principal" onclick="calcularRuta()" disabled>Calcular Ruta Óptima</button>
+                <button class="btn-volver" onclick="irAPaso(2)">← Cambiar negocio</button>
+            </div>
+
+            <div id="paso4" class="paso-contenedor">
+                <label class="titulo">Ruta Generada</label>
+                <p class="ayuda" id="textoMetodo">Ruta calculada con éxito.</p>
+                
                 <div class="metricas">
                     <div class="metrica"><span>Distancia</span><b id="rDistancia">-</b></div>
-                    <div class="metrica"><span>En movimiento</span><b id="rMovimiento">-</b></div>
-                    <div class="metrica"><span>Tiempo de servicio</span><b id="rServicio">-</b></div>
                     <div class="metrica"><span>Paradas</span><b id="rParadas">-</b></div>
                     <div class="metrica total"><span>Tiempo total estimado</span><b id="rTotal">-</b></div>
                 </div>
-                <p class="ayuda" id="rMetodo"></p>
+
+                <button class="btn-principal" onclick="iniciarNavegacion()">Iniciar Navegación</button>
+                <button class="btn-secundario" onclick="reiniciarApp()" style="margin-top: 10px;">Crear nueva ruta</button>
             </div>
+
         </div>
     </div>
 
@@ -139,204 +203,284 @@
 
     <script>
         const API_URL = '/api';
+        
+        // --- BASE DE DATOS DE CIUDADES DEL PERÚ ---
+        const ciudadesPeru = [
+            { nombre: "Lima", lat: -12.0464, lng: -77.0428, z: 12 },
+            { nombre: "Arequipa", lat: -16.4090, lng: -71.5375, z: 13 },
+            { nombre: "Cusco", lat: -13.5320, lng: -71.9675, z: 14 },
+            { nombre: "Trujillo", lat: -8.1091, lng: -79.0215, z: 13 },
+            { nombre: "Chiclayo", lat: -6.7714, lng: -79.8409, z: 13 },
+            { nombre: "Piura", lat: -5.1945, lng: -80.6328, z: 13 },
+            { nombre: "Iquitos", lat: -3.7491, lng: -73.2538, z: 13 },
+            { nombre: "Huancayo", lat: -12.0651, lng: -75.2049, z: 13 },
+            { nombre: "Pucallpa", lat: -8.3791, lng: -74.5539, z: 13 },
+            { nombre: "Tacna", lat: -18.0146, lng: -70.2536, z: 13 },
+            { nombre: "Ica", lat: -14.0678, lng: -75.7286, z: 13 },
+            { nombre: "Juliaca", lat: -15.4931, lng: -70.1336, z: 13 },
+            { nombre: "Puno", lat: -15.8402, lng: -70.0219, z: 14 },
+            { nombre: "Tarapoto", lat: -6.4878, lng: -76.3597, z: 13 },
+            { nombre: "Huaraz", lat: -9.5278, lng: -77.5278, z: 14 },
+            { nombre: "Cajamarca", lat: -7.1638, lng: -78.5003, z: 13 },
+            { nombre: "Ayacucho", lat: -13.1588, lng: -74.2239, z: 14 },
+            { nombre: "Huánuco", lat: -9.9306, lng: -76.2422, z: 14 },
+            { nombre: "Cerro de Pasco", lat: -10.6675, lng: -76.2567, z: 14 },
+            { nombre: "Chimbote", lat: -9.0763, lng: -78.5936, z: 13 },
+            { nombre: "Tumbes", lat: -3.5669, lng: -80.4515, z: 14 },
+            { nombre: "Puerto Maldonado", lat: -12.5933, lng: -69.1836, z: 14 },
+            { nombre: "Moquegua", lat: -17.1983, lng: -70.9357, z: 14 },
+            { nombre: "Abancay", lat: -13.6339, lng: -72.8814, z: 14 },
+            { nombre: "Chachapoyas", lat: -6.2294, lng: -77.8728, z: 14 },
+            { nombre: "Moyobamba", lat: -6.0342, lng: -76.9723, z: 14 },
+            { nombre: "Huancavelica", lat: -12.7826, lng: -74.9727, z: 14 }
+        ];
+
+        // --- INICIALIZACIÓN ---
+        window.onload = () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash');
+                const panel = document.getElementById('panel');
+                splash.style.opacity = '0';
+                setTimeout(() => {
+                    splash.style.display = 'none';
+                    panel.style.display = 'block';
+                    setTimeout(() => {
+                        panel.style.opacity = '1';
+                        panel.style.transform = 'translateY(0)';
+                    }, 50);
+                }, 600);
+            }, 1500);
+        };
 
         const mapa = L.map('map', { zoomControl: false }).setView([-12.0464, -77.0428], 12);
         L.control.zoom({ position: 'bottomright' }).addTo(mapa);
-
-        // Mapas base con color y sin API key (se puede cambiar desde el control de capas)
-        const calles = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 19,
-            attribution: 'Tiles © Esri — Esri, HERE, Garmin, OpenStreetMap contributors'
-        });
-        const osm = L.tileLayer('https://tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        
+        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
             maxZoom: 19,
             attribution: '© OpenStreetMap contributors'
-        });
-        const satelite = L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
-            maxZoom: 19,
-            attribution: 'Tiles © Esri — Maxar, Earthstar Geographics'
-        });
+        }).addTo(mapa);
 
-        calles.addTo(mapa);
-        L.control.layers(
-            { 'Calles': calles, 'OpenStreetMap': osm, 'Satélite': satelite },
-            null,
-            { position: 'topright' }
-        ).addTo(mapa);
-
-        let puntosDespacho = [];
+        let pasoActual = 1;
+        let puntosDespacho = []; 
         let marcadores = [];
         let capaRuta = null;
+        const LIMITE_DISTANCIA_METROS = 15000; // Regla de negocio: 15 km máximo
 
-        function cambiarCiudad() {
-            const seleccion = document.getElementById('ciudad').value;
-            const [lat, lng, zoom] = seleccion.split(',');
-            mapa.setView([parseFloat(lat), parseFloat(lng)], parseInt(zoom));
-            limpiarMapa();
-        }
-
-        // Iconos propios (HTML/CSS) en lugar de los pines azules por defecto
         const iconoAlmacen = L.divIcon({
             className: '',
-            html: `<div class="pin pin-almacen">
-                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
-                   </div>`,
-            iconSize: [38, 38],
-            iconAnchor: [19, 19]
+            html: `<div class="pin pin-almacen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div>`,
+            iconSize: [38, 38], iconAnchor: [19, 19]
         });
-
+        
         function iconoEntrega(n) {
-            return L.divIcon({
-                className: '',
-                html: `<div class="pin pin-entrega">${n}</div>`,
-                iconSize: [30, 30],
-                iconAnchor: [15, 15]
-            });
+            return L.divIcon({ className: '', html: `<div class="pin pin-entrega">${n}</div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
         }
 
-        mapa.on('click', function(e) {
-            const lat = e.latlng.lat;
-            const lng = e.latlng.lng;
+        // --- AUTOCOMPLETADO LÓGICA ---
+        const inputCiudad = document.getElementById('buscadorCiudad');
+        const listaCiudadesDiv = document.getElementById('listaCiudades');
+        const btnContinuar = document.getElementById('btnContinuarPaso1');
 
-            puntosDespacho.push([lng, lat]);
-
-            let marcador;
-            if (puntosDespacho.length === 1) {
-                marcador = L.marker([lat, lng], { icon: iconoAlmacen })
-                    .bindTooltip("Almacén (inicio y fin)", { direction: 'top', offset: [0, -16] })
-                    .addTo(mapa);
-            } else {
-                const n = puntosDespacho.length - 1;
-                marcador = L.marker([lat, lng], { icon: iconoEntrega(n) })
-                    .bindTooltip(`Entrega #${n}`, { direction: 'top', offset: [0, -12] })
-                    .addTo(mapa);
-            }
-
-            marcadores.push(marcador);
-            document.getElementById('contador').innerText = puntosDespacho.length - 1;
-        });
-
-        function limpiarMapa() {
-            puntosDespacho = [];
-            marcadores.forEach(m => mapa.removeLayer(m));
-            marcadores = [];
-            if (capaRuta) {
-                mapa.removeLayer(capaRuta);
-                capaRuta = null;
-            }
-            document.getElementById('contador').innerText = 0;
-            document.getElementById('resultado').style.display = 'none';
-        }
-
-        // Dibuja la ruta con borde blanco + línea violeta, puntas y uniones redondeadas
-        function dibujarRuta(geometry) {
-            if (capaRuta) mapa.removeLayer(capaRuta);
-
-            const base = { lineCap: 'round', lineJoin: 'round', smoothFactor: 0.5 };
-            const borde = L.geoJSON(geometry, {
-                style: { ...base, color: '#ffffff', weight: 10, opacity: 0.95 }
-            });
-            const linea = L.geoJSON(geometry, {
-                style: { ...base, color: '#5b3df5', weight: 6, opacity: 1 }
-            });
-
-            capaRuta = L.layerGroup([borde, linea]).addTo(mapa);
-            mapa.fitBounds(linea.getBounds(), { padding: [60, 60] });
-        }
-
-        // Los pines pasan a mostrar el orden de visita óptimo (no el orden de clic)
-        function renumerarEntregas(orden) {
-            orden.forEach((clic, i) => {
-                const m = marcadores[clic];
-                m.setIcon(iconoEntrega(i + 1));
-                m.setTooltipContent(`Parada ${i + 1} (clic #${clic})`);
-            });
-        }
-
-        async function calcularRuta() {
-            if (puntosDespacho.length < 2) {
-                alert("Selecciona el almacén y al menos 1 punto de despacho en el mapa.");
+        inputCiudad.addEventListener('input', function() {
+            const texto = this.value.toLowerCase().trim();
+            listaCiudadesDiv.innerHTML = '';
+            
+            if (texto.length === 0) {
+                listaCiudadesDiv.style.display = 'none';
+                btnContinuar.disabled = true;
                 return;
             }
 
-            const btn = document.getElementById('btnRuta');
+            const coincidencias = ciudadesPeru.filter(c => c.nombre.toLowerCase().includes(texto));
+
+            if (coincidencias.length > 0) {
+                listaCiudadesDiv.style.display = 'block';
+                coincidencias.forEach(ciudad => {
+                    const item = document.createElement('div');
+                    item.className = 'autocomplete-item';
+                    item.innerText = ciudad.nombre;
+                    item.onclick = () => {
+                        inputCiudad.value = ciudad.nombre;
+                        document.getElementById('ciudadNombre').value = ciudad.nombre;
+                        document.getElementById('ciudadLat').value = ciudad.lat;
+                        document.getElementById('ciudadLng').value = ciudad.lng;
+                        
+                        listaCiudadesDiv.style.display = 'none';
+                        btnContinuar.disabled = false;
+                        mapa.flyTo([ciudad.lat, ciudad.lng], ciudad.z);
+                    };
+                    listaCiudadesDiv.appendChild(item);
+                });
+            } else {
+                listaCiudadesDiv.style.display = 'none';
+                btnContinuar.disabled = true;
+            }
+        });
+
+        function irAPaso(paso) {
+            document.querySelectorAll('.paso-contenedor').forEach(el => el.classList.remove('activo'));
+            document.getElementById(`paso${paso}`).classList.add('activo');
+            document.getElementById('indicadorPaso').innerText = `Paso ${paso} de 4`;
+            pasoActual = paso;
+        }
+
+        function reiniciarApp() {
+            puntosDespacho = [];
+            marcadores.forEach(m => mapa.removeLayer(m));
+            marcadores = [];
+            if (capaRuta) mapa.removeLayer(capaRuta);
+            actualizarContador();
+            document.getElementById('btnConfirmaNegocio').disabled = true;
+            irAPaso(1);
+        }
+
+        function actualizarContador() {
+            const count = Math.max(0, puntosDespacho.length - 1);
+            document.getElementById('contador').innerText = count;
+            document.getElementById('btnCalcularRuta').disabled = (count === 0);
+        }
+
+        function eliminarMarcador(marcador) {
+            if (pasoActual !== 3) return; // Solo permitir borrar antes de calcular ruta
+            
+            const index = marcadores.indexOf(marcador);
+            if (index > 0) { // No borrar el almacén (índice 0)
+                mapa.removeLayer(marcador);
+                marcadores.splice(index, 1);
+                puntosDespacho.splice(index, 1);
+                
+                // Renumerar los marcadores restantes
+                for (let i = 1; i < marcadores.length; i++) {
+                    marcadores[i].setIcon(iconoEntrega(i));
+                    marcadores[i].setTooltipContent(`Entrega #${i} (Click para eliminar)`);
+                }
+                actualizarContador();
+            }
+        }
+
+        function agregarPunto(lat, lng) {
+            if (pasoActual === 2) {
+                if (puntosDespacho.length > 0) {
+                    puntosDespacho[0] = [lng, lat];
+                    marcadores[0].setLatLng([lat, lng]);
+                } else {
+                    puntosDespacho.push([lng, lat]);
+                    const m = L.marker([lat, lng], { icon: iconoAlmacen }).bindTooltip("Tu Negocio", { direction: 'top' }).addTo(mapa);
+                    marcadores.push(m);
+                }
+                document.getElementById('btnConfirmaNegocio').disabled = false;
+
+            } else if (pasoActual === 3) {
+                // REGLA DE NEGOCIO: Validar la distancia desde el almacén
+                const almacenLatLng = marcadores[0].getLatLng();
+                const distanciaMetros = mapa.distance(almacenLatLng, [lat, lng]);
+                
+                if (distanciaMetros > LIMITE_DISTANCIA_METROS) {
+                    alert(`⚠️ Punto fuera del área de cobertura.\nLa distancia en línea recta es de ${(distanciaMetros/1000).toFixed(1)} km.\nEl límite máximo de despacho por ruta es de ${LIMITE_DISTANCIA_METROS/1000} km.`);
+                    return;
+                }
+
+                puntosDespacho.push([lng, lat]);
+                const n = puntosDespacho.length - 1;
+                const m = L.marker([lat, lng], { icon: iconoEntrega(n) })
+                    .bindTooltip(`Entrega #${n} (Click para eliminar)`, { direction: 'top' })
+                    .addTo(mapa);
+                
+                // Evento para eliminar
+                m.on('click', function() { eliminarMarcador(this); });
+                
+                marcadores.push(m);
+                actualizarContador();
+            }
+        }
+
+        mapa.on('click', function(e) {
+            if (pasoActual === 2 || pasoActual === 3) {
+                agregarPunto(e.latlng.lat, e.latlng.lng);
+            }
+        });
+
+        // --- BUSCADOR ACORRALADO Y MÁS ESTRICTO ---
+        async function buscarDireccion(inputId) {
+            const inputDir = document.getElementById(inputId);
+            const texto = inputDir.value.trim();
+            if (!texto) return;
+
+            const ciudadNombre = document.getElementById('ciudadNombre').value;
+            const cLat = parseFloat(document.getElementById('ciudadLat').value);
+            const cLng = parseFloat(document.getElementById('ciudadLng').value);
+            
+            // Caja delimitadora reducida a ~16km para evitar puntos remotos
+            const offset = 0.15;
+            const left = cLng - offset;
+            const right = cLng + offset;
+            const top = cLat + offset;
+            const bottom = cLat - offset;
+            
+            // Fuerza la búsqueda incluyendo ciudad y país
+            const queryEstricto = `${texto}, ${ciudadNombre}, Perú`;
+            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryEstricto)}&viewbox=${left},${top},${right},${bottom}&bounded=1&limit=1`;
+
+            try {
+                const respuesta = await fetch(url);
+                const datos = await respuesta.json();
+
+                if (datos.length > 0) {
+                    const lat = parseFloat(datos[0].lat);
+                    const lng = parseFloat(datos[0].lon);
+                    agregarPunto(lat, lng);
+                    mapa.flyTo([lat, lng], 16);
+                    inputDir.value = '';
+                } else {
+                    alert(`No se encontró la dirección dentro de un radio cercano en ${ciudadNombre}. Sé más específico agregando el distrito.`);
+                }
+            } catch (error) {
+                alert("Error de conexión al buscar la dirección.");
+            }
+        }
+
+        async function calcularRuta() {
+            const btn = document.getElementById('btnCalcularRuta');
             btn.disabled = true;
-            btn.innerText = 'Calculando... (la 1.ª vez descarga el mapa)';
+            btn.innerText = 'Trazando ruta...';
 
             try {
                 const respuesta = await fetch(`${API_URL}/ruta`, {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
-                        ciudad: document.getElementById('ciudad').selectedOptions[0].text,
+                        ciudad: document.getElementById('ciudadNombre').value,
                         puntos: puntosDespacho
                     })
                 });
                 const datos = await respuesta.json();
 
-                if (!respuesta.ok) {
-                    alert(datos.error || "No se pudo calcular la ruta.");
-                    return;
-                }
+                if (!respuesta.ok) throw new Error(datos.error || "Error desconocido");
 
-                dibujarRuta(datos.geometry);
-                renumerarEntregas(datos.orden);
-                document.getElementById('rMetodo').innerText = 'Orden de visita ' + datos.metodo;
+                if (capaRuta) mapa.removeLayer(capaRuta);
+                const linea = L.geoJSON(datos.geometry, { style: { color: '#000000', weight: 5, opacity: 0.8 } });
+                capaRuta = L.layerGroup([linea]).addTo(mapa);
+                mapa.fitBounds(linea.getBounds(), { padding: [50, 50] });
+
+                datos.orden.forEach((clic, i) => {
+                    marcadores[clic].setIcon(iconoEntrega(i + 1));
+                    marcadores[clic].setTooltipContent(`Parada ${i + 1} (Fija)`);
+                });
 
                 document.getElementById('rDistancia').innerText = (datos.distancia_m / 1000).toFixed(2) + ' km';
-                document.getElementById('rMovimiento').innerText = datos.duracion_movimiento_min + ' min';
-                document.getElementById('rServicio').innerText = datos.tiempo_servicio_min + ' min';
                 document.getElementById('rParadas').innerText = datos.paradas;
                 document.getElementById('rTotal').innerText = datos.tiempo_total_min + ' min';
-                document.getElementById('resultado').style.display = 'block';
+
+                irAPaso(4);
             } catch (error) {
-                console.error("Error de conexión:", error);
-                alert("No se pudo conectar con el backend. ¿Está corriendo app.py?");
-            } finally {
+                alert(error.message);
                 btn.disabled = false;
-                btn.innerText = 'Calcular ruta de entrega';
+                btn.innerText = 'Calcular Ruta Óptima';
             }
         }
 
-        // ---- Rastreo GPS en vivo ----
-        let marcadorGPS = null;
-        let circuloPrecision = null;
-
-        if ('geolocation' in navigator) {
-            navigator.geolocation.watchPosition(posicion => {
-                const lat = posicion.coords.latitude;
-                const lng = posicion.coords.longitude;
-                const precision = posicion.coords.accuracy;
-
-                if (marcadorGPS) {
-                    marcadorGPS.setLatLng([lat, lng]);
-                    circuloPrecision.setLatLng([lat, lng]);
-                    circuloPrecision.setRadius(precision);
-                } else {
-                    marcadorGPS = L.marker([lat, lng], {
-                        icon: L.divIcon({
-                            className: 'gps-marker',
-                            html: '<div style="background-color: #1b1b3a; width: 16px; height: 16px; border-radius: 50%; border: 3px solid white; box-shadow: 0 0 6px rgba(0,0,0,0.5);"></div>',
-                            iconSize: [22, 22],
-                            iconAnchor: [11, 11]
-                        }),
-                        zIndexOffset: 1000
-                    }).addTo(mapa);
-
-                    circuloPrecision = L.circle([lat, lng], {
-                        radius: precision,
-                        color: '#1b1b3a',
-                        fillOpacity: 0.12,
-                        weight: 1
-                    }).addTo(mapa);
-                }
-            }, error => {
-                console.warn("No se pudo obtener la ubicación:", error.message);
-            }, {
-                enableHighAccuracy: true,
-                maximumAge: 0,
-                timeout: 5000
-            });
+        function iniciarNavegacion() {
+            alert("¡Esta será la siguiente función a desarrollar! La cámara hará zoom, rotará según el GPS y te dará instrucciones paso a paso.");
         }
     </script>
 </body>
