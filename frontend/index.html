@@ -2,502 +2,95 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="color-scheme" content="light dark">
     <title>FastRoutes - Mapa de Despacho</title>
 
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Sora:wght@300;400;600;800&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --ink: #000000;
-            --muted: #6b6f8d;
-            --violeta: #000000; 
-            --violeta-suave: #ece8ff;
-            --almacen: #12b886;
-            --linea: #e4e5ee;
-            --fondo: #ffffff;
-            --peligro: #ff4757;
-        }
-        * { box-sizing: border-box; }
-        body { margin: 0; padding: 0; font-family: 'Sora', system-ui, sans-serif; color: var(--ink); overflow: hidden; }
-        #map { width: 100vw; height: 100vh; background: #e9eef2; }
-
-        /* --- SPLASH SCREEN --- */
-        #splash {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(255, 255, 255, 0.4);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            z-index: 9999;
-            display: flex; flex-direction: column; justify-content: center; align-items: center;
-            transition: opacity 0.6s ease;
-        }
-        .splash-logo { font-size: 54px; letter-spacing: -1px; margin: 0; line-height: 1; }
-        .splash-logo .fast { font-weight: 800; color: var(--ink); }
-        .splash-logo .routes { font-weight: 300; color: var(--violeta); }
-        .splash-slogan { margin-top: 10px; font-size: 14px; font-weight: 600; color: var(--muted); }
-
-        /* --- ANIMACIÓN DEL DELIVERY --- */
-        #splash-delivery {
-            width: 280px;
-            margin-bottom: 5px;
-            /* 3 segundos dura*/
-            animation: rideDelivery 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
-        }
-
-        @keyframes rideDelivery {
-            0%   { transform: translateX(-150vw); } /* Inicia fuera por la izquierda */
-            40%  { transform: translateX(0); }      /* Llega al centro */
-            60%  { transform: translateX(0); }      /* Pausa en el centro */
-            100% { transform: translateX(150vw); }  /* Sale por la derecha */
-        }
-
-        /* --- PANEL DE CONTROL --- */
-        #panel {
-            position: absolute; top: 16px; left: 16px; width: 320px;
-            background: var(--fondo); border-radius: 16px; z-index: 1000;
-            box-shadow: 0 8px 30px rgba(27, 27, 58, 0.18);
-            overflow: visible; 
-            display: none; 
-            transform: translateY(-20px); opacity: 0; transition: all 0.5s ease;
-        }
-        .marca { padding: 18px 20px 14px; background: var(--ink); color: white; display: flex; justify-content: space-between; align-items: center;}
-        .marca h1 { margin: 0; font-size: 22px; letter-spacing: -0.5px; line-height: 1; }
-        .marca .fast { font-weight: 800; }
-        .marca .routes { font-weight: 300; }
-        .paso-indicador { font-size: 11px; background: rgba(255,255,255,0.2); padding: 4px 8px; border-radius: 12px; }
-
-        .cuerpo { padding: 16px 20px 20px; }
-        label.titulo { font-size: 13px; font-weight: 600; display: block; margin-bottom: 8px;}
-        .ayuda { font-size: 12px; color: var(--muted); margin: 0 0 12px 0; line-height: 1.4; }
-        
-        input, button {
-            width: 100%; padding: 11px 12px; font-family: inherit; font-size: 14px; border-radius: 10px;
-        }
-        input { border: 1px solid var(--linea); background: white; color: var(--ink); margin-bottom: 12px; }
-        input:focus { outline: 2px solid var(--violeta); border-color: transparent; }
-        
-        button { border: 0; font-weight: 600; cursor: pointer; transition: transform .1s ease; margin-bottom: 8px;}
-        button:active:not(:disabled) { transform: scale(0.98); }
-        button:disabled { opacity: 0.5; cursor: not-allowed; }
-        .btn-principal { background: var(--violeta); color: white; box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2); }
-        .btn-secundario { background: var(--violeta-suave); color: var(--violeta); }
-        .btn-volver { background: transparent; color: var(--muted); padding: 5px; margin: 0; text-decoration: underline; font-size: 12px; }
-
-        .paso-contenedor { display: none; animation: fadeIn 0.3s ease; }
-        .paso-contenedor.activo { display: block; }
-        @keyframes fadeIn { from { opacity: 0; transform: translateX(10px); } to { opacity: 1; transform: translateX(0); } }
-
-        /* --- AUTOCOMPLETADO DE CIUDADES --- */
-        .autocomplete-container { position: relative; width: 100%; margin-bottom: 12px; }
-        .autocomplete-container input { margin-bottom: 0; }
-        .autocomplete-list {
-            position: absolute; top: 100%; left: 0; right: 0; z-index: 2000;
-            background: white; border: 1px solid var(--linea); border-radius: 8px;
-            max-height: 200px; overflow-y: auto; margin-top: 4px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1); display: none;
-        }
-        .autocomplete-item { padding: 10px 12px; font-size: 14px; cursor: pointer; border-bottom: 1px solid var(--linea); }
-        .autocomplete-item:last-child { border-bottom: none; }
-        .autocomplete-item:hover { background: var(--violeta-suave); }
-
-        .buscador-flex { display: flex; gap: 8px; margin-bottom: 12px; }
-        .buscador-flex input { margin-bottom: 0; flex: 1; }
-        .buscador-flex button { margin-bottom: 0; width: auto; padding: 11px 16px; }
-        
-        .paradas { display: flex; justify-content: space-between; align-items: center; padding: 12px; background: #f6f6fb; border-radius: 10px; margin-bottom: 12px;}
-        #contador { font-size: 20px; font-weight: 800; color: var(--violeta); }
-
-        .metricas { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-bottom: 16px;}
-        .metrica { background: #f6f6fb; border-radius: 10px; padding: 10px 12px; }
-        .metrica span { display: block; font-size: 11px; color: var(--muted); }
-        .metrica b { font-size: 16px; }
-        .metrica.total { grid-column: 1 / -1; background: var(--almacen); color: white;}
-        .metrica.total span { color: rgba(255,255,255,0.8); }
-
-        .pin { display: flex; align-items: center; justify-content: center; border-radius: 50%;
-               color: white; font-weight: 800; font-family: 'Sora', sans-serif; cursor: pointer;
-               border: 3px solid white; box-shadow: 0 3px 10px rgba(27,27,58,.4); transition: transform 0.2s;}
-        .pin:hover { transform: scale(1.1); }
-        .pin-almacen { width: 38px; height: 38px; background: var(--almacen); }
-        .pin-entrega { width: 30px; height: 30px; background: var(--violeta); font-size: 13px; }
-        
-        .leaflet-control-zoom { border: 0 !important; box-shadow: 0 4px 14px rgba(27,27,58,.2) !important; }
-
-        @media (max-width: 600px) {
-            #panel { top: auto; bottom: 0; left: 0; width: 100%; border-radius: 16px 16px 0 0; }
-            .leaflet-bottom.leaflet-right { display: none; }
-        }
-    </style>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+    <link rel="stylesheet" href="css/variables.css">
+    <link rel="stylesheet" href="css/base.css">
+    <link rel="stylesheet" href="css/splash.css">
+    <link rel="stylesheet" href="css/panel.css">
+    <link rel="stylesheet" href="css/componentes.css">
+    <link rel="stylesheet" href="css/marcadores.css">
 </head>
 <body>
-
     <div id="splash">
         <img src="delivery.png" id="splash-delivery" alt="Delivery">
         <h1 class="splash-logo"><span class="fast">FAST</span><span class="routes">Routes</span></h1>
         <div class="splash-slogan">Para ti, JJ...</div>
     </div>
 
-    <div id="panel">
+    <div id="aviso" class="vidrio" role="status" aria-live="polite"></div>
+
+    <div id="panel" class="vidrio">
         <div class="marca">
             <h1><span class="fast">FAST</span><span class="routes">Routes</span></h1>
-            <span id="indicadorPaso" class="paso-indicador">Paso 1 de 4</span>
+            <div id="progreso" class="progreso" aria-label="Progreso"><span></span><span></span><span></span><span></span></div>
         </div>
 
         <div class="cuerpo">
-            
-            <div id="paso1" class="paso-contenedor activo">
-                <label class="titulo">¿En qué ciudad realizarás las entregas?</label>
-                <p class="ayuda">Escribe y selecciona una opción para continuar.</p>
-                
-                <div class="autocomplete-container">
-                    <input type="text" id="buscadorCiudad" placeholder="Ej. Lima, Cusco..." autocomplete="off">
-                    <div id="listaCiudades" class="autocomplete-list"></div>
+            <section id="paso1" class="paso-contenedor activo">
+                <h2 class="titulo">¿En qué ciudad entregarás?</h2>
+                <p class="ayuda">Escribe y elige una ciudad para continuar.</p>
+                <div class="buscador">
+                    <div class="campo">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                        <input type="text" id="buscadorCiudad" placeholder="Lima, Cusco…" autocomplete="off">
+                        <div id="listaCiudades" class="lista"></div>
+                    </div>
                 </div>
-                
-                <input type="hidden" id="ciudadLat" value="-12.0464">
-                <input type="hidden" id="ciudadLng" value="-77.0428">
-                <input type="hidden" id="ciudadNombre" value="Lima">
+                <button id="btnContinuarPaso1" class="btn btn-principal" data-ir="2" disabled>Continuar</button>
+            </section>
 
-                <button id="btnContinuarPaso1" class="btn-principal" onclick="irAPaso(2)" disabled>Continuar</button>
-            </div>
-
-            <div id="paso2" class="paso-contenedor">
-                <label class="titulo">¿Dónde está ubicado tu negocio?</label>
-                <p class="ayuda">Toca el mapa o busca una dirección para establecer el punto de partida y retorno.</p>
-                
-                <div class="buscador-flex">
-                    <input type="text" id="dirNegocio" placeholder="Ej. Av. Larco 123">
-                    <button onclick="buscarDireccion('dirNegocio')" class="btn-secundario">Buscar</button>
+            <section id="paso2" class="paso-contenedor">
+                <h2 class="titulo">Ubica tu negocio</h2>
+                <p class="ayuda">Toca el mapa o busca una dirección. Será el punto de partida y de regreso.</p>
+                <div class="buscador">
+                    <div class="campo">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                        <input type="text" id="dirNegocio" placeholder="Av. Larco 123">
+                    </div>
+                    <button id="btnBuscarNegocio" class="btn btn-secundario">Buscar</button>
                 </div>
+                <button id="btnConfirmaNegocio" class="btn btn-principal" data-ir="3" disabled>Confirmar negocio</button>
+                <button class="btn btn-texto" data-ir="1">Cambiar ciudad</button>
+            </section>
 
-                <button id="btnConfirmaNegocio" class="btn-principal" onclick="irAPaso(3)" disabled>Confirmar Negocio</button>
-                <button class="btn-volver" onclick="irAPaso(1)">← Volver a ciudad</button>
-            </div>
-
-            <div id="paso3" class="paso-contenedor">
-                <label class="titulo">¿Dónde están ubicadas las entregas?</label>
-                <p class="ayuda">Toca el mapa o busca direcciones. <b>Toca un marcador en el mapa para eliminarlo.</b> (Radio máximo:30km)</p>
-
-                <div class="buscador-flex">
-                    <input type="text" id="dirDespacho" placeholder="Ej. Plaza San Miguel">
-                    <button onclick="buscarDireccion('dirDespacho')" class="btn-secundario">Añadir</button>
+            <section id="paso3" class="paso-contenedor">
+                <h2 class="titulo">Añade las entregas</h2>
+                <p class="ayuda">Toca el mapa o busca direcciones. Toca un marcador para eliminarlo. Radio máximo: 30 km.</p>
+                <div class="buscador">
+                    <div class="campo">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+                        <input type="text" id="dirDespacho" placeholder="Plaza San Miguel">
+                    </div>
+                    <button id="btnBuscarDespacho" class="btn btn-secundario">Añadir</button>
                 </div>
+                <div class="grupo"><div class="fila"><span>Entregas registradas</span><b id="contador">0</b></div></div>
+                <button id="btnCalcularRuta" class="btn btn-principal" disabled>Calcular ruta óptima</button>
+                <button class="btn btn-texto" data-ir="2">Cambiar negocio</button>
+            </section>
 
-                <div class="paradas">
-                    <span>Entregas registradas:</span>
-                    <span id="contador">0</span>
+            <section id="paso4" class="paso-contenedor">
+                <h2 class="titulo">Ruta generada</h2>
+                <p class="ayuda" id="textoMetodo"></p>
+                <div class="grupo">
+                    <div class="fila"><span>Distancia</span><b id="rDistancia">-</b></div>
+                    <div class="fila"><span>Paradas</span><b id="rParadas">-</b></div>
+                    <div class="fila"><span>En movimiento</span><b id="rMovimiento">-</b></div>
+                    <div class="fila"><span>En entregas</span><b id="rServicio">-</b></div>
                 </div>
-
-                <button id="btnCalcularRuta" class="btn-principal" onclick="calcularRuta()" disabled>Calcular Ruta Óptima</button>
-                <button class="btn-volver" onclick="irAPaso(2)">← Cambiar negocio</button>
-            </div>
-
-            <div id="paso4" class="paso-contenedor">
-                <label class="titulo">Ruta Generada</label>
-                <p class="ayuda" id="textoMetodo">Ruta calculada con éxito.</p>
-                
-                <div class="metricas">
-                    <div class="metrica"><span>Distancia</span><b id="rDistancia">-</b></div>
-                    <div class="metrica"><span>Paradas</span><b id="rParadas">-</b></div>
-                    <div class="metrica total"><span>Tiempo total estimado</span><b id="rTotal">-</b></div>
-                </div>
-
-                <button class="btn-principal" onclick="iniciarNavegacion()">Iniciar Navegación</button>
-                <button class="btn-secundario" onclick="reiniciarApp()" style="margin-top: 10px;">Crear nueva ruta</button>
-            </div>
-
+                <div class="total"><span>Tiempo total estimado</span><b id="rTotal">-</b></div>
+                <button id="btnNavegar" class="btn btn-principal">Iniciar navegación</button>
+                <button id="btnReiniciar" class="btn btn-secundario">Crear nueva ruta</button>
+            </section>
         </div>
     </div>
 
     <div id="map"></div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-
-    <script>
-        const API_URL = '/api';
-        
-        // --- BASE DE DATOS DE CIUDADES DEL PERÚ ---
-        const ciudadesPeru = [
-            { nombre: "Lima", lat: -12.0464, lng: -77.0428, z: 12 },
-            { nombre: "Arequipa", lat: -16.4090, lng: -71.5375, z: 13 },
-            { nombre: "Cusco", lat: -13.5320, lng: -71.9675, z: 14 },
-            { nombre: "Trujillo", lat: -8.1091, lng: -79.0215, z: 13 },
-            { nombre: "Chiclayo", lat: -6.7714, lng: -79.8409, z: 13 },
-            { nombre: "Piura", lat: -5.1945, lng: -80.6328, z: 13 },
-            { nombre: "Iquitos", lat: -3.7491, lng: -73.2538, z: 13 },
-            { nombre: "Huancayo", lat: -12.0651, lng: -75.2049, z: 13 },
-            { nombre: "Pucallpa", lat: -8.3791, lng: -74.5539, z: 13 },
-            { nombre: "Tacna", lat: -18.0146, lng: -70.2536, z: 13 },
-            { nombre: "Ica", lat: -14.0678, lng: -75.7286, z: 13 },
-            { nombre: "Juliaca", lat: -15.4931, lng: -70.1336, z: 13 },
-            { nombre: "Puno", lat: -15.8402, lng: -70.0219, z: 14 },
-            { nombre: "Tarapoto", lat: -6.4878, lng: -76.3597, z: 13 },
-            { nombre: "Huaraz", lat: -9.5278, lng: -77.5278, z: 14 },
-            { nombre: "Cajamarca", lat: -7.1638, lng: -78.5003, z: 13 },
-            { nombre: "Ayacucho", lat: -13.1588, lng: -74.2239, z: 14 },
-            { nombre: "Huánuco", lat: -9.9306, lng: -76.2422, z: 14 },
-            { nombre: "Cerro de Pasco", lat: -10.6675, lng: -76.2567, z: 14 },
-            { nombre: "Chimbote", lat: -9.0763, lng: -78.5936, z: 13 },
-            { nombre: "Tumbes", lat: -3.5669, lng: -80.4515, z: 14 },
-            { nombre: "Puerto Maldonado", lat: -12.5933, lng: -69.1836, z: 14 },
-            { nombre: "Moquegua", lat: -17.1983, lng: -70.9357, z: 14 },
-            { nombre: "Abancay", lat: -13.6339, lng: -72.8814, z: 14 },
-            { nombre: "Chachapoyas", lat: -6.2294, lng: -77.8728, z: 14 },
-            { nombre: "Moyobamba", lat: -6.0342, lng: -76.9723, z: 14 },
-            { nombre: "Huancavelica", lat: -12.7826, lng: -74.9727, z: 14 }
-        ];
-
-        // --- INICIALIZACIÓN ---
-        window.onload = () => {
-            setTimeout(() => {
-                const splash = document.getElementById('splash');
-                const panel = document.getElementById('panel');
-                splash.style.opacity = '0';
-                setTimeout(() => {
-                    splash.style.display = 'none';
-                    panel.style.display = 'block';
-                    setTimeout(() => {
-                        panel.style.opacity = '1';
-                        panel.style.transform = 'translateY(0)';
-                    }, 50);
-                }, 600);
-            }, 3000);
-        };
-
-        const mapa = L.map('map', { zoomControl: false }).setView([-12.0464, -77.0428], 12);
-        L.control.zoom({ position: 'bottomright' }).addTo(mapa);
-        
-        L.tileLayer('https://{s}.tile.openstreetmap.fr/hot/{z}/{x}/{y}.png', {
-            maxZoom: 19,
-            attribution: '© OpenStreetMap contributors'
-        }).addTo(mapa);
-
-        let pasoActual = 1;
-        let puntosDespacho = []; 
-        let marcadores = [];
-        let capaRuta = null;
-        const LIMITE_DISTANCIA_METROS = 30000; // Regla de negocio: 30 km máximo
-
-        const iconoAlmacen = L.divIcon({
-            className: '',
-            html: `<div class="pin pin-almacen"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg></div>`,
-            iconSize: [38, 38], iconAnchor: [19, 19]
-        });
-        
-        function iconoEntrega(n) {
-            return L.divIcon({ className: '', html: `<div class="pin pin-entrega">${n}</div>`, iconSize: [30, 30], iconAnchor: [15, 15] });
-        }
-
-        // --- AUTOCOMPLETADO LÓGICA ---
-        const inputCiudad = document.getElementById('buscadorCiudad');
-        const listaCiudadesDiv = document.getElementById('listaCiudades');
-        const btnContinuar = document.getElementById('btnContinuarPaso1');
-
-        inputCiudad.addEventListener('input', function() {
-            const texto = this.value.toLowerCase().trim();
-            listaCiudadesDiv.innerHTML = '';
-            
-            if (texto.length === 0) {
-                listaCiudadesDiv.style.display = 'none';
-                btnContinuar.disabled = true;
-                return;
-            }
-
-            const coincidencias = ciudadesPeru.filter(c => c.nombre.toLowerCase().includes(texto));
-
-            if (coincidencias.length > 0) {
-                listaCiudadesDiv.style.display = 'block';
-                coincidencias.forEach(ciudad => {
-                    const item = document.createElement('div');
-                    item.className = 'autocomplete-item';
-                    item.innerText = ciudad.nombre;
-                    item.onclick = () => {
-                        inputCiudad.value = ciudad.nombre;
-                        document.getElementById('ciudadNombre').value = ciudad.nombre;
-                        document.getElementById('ciudadLat').value = ciudad.lat;
-                        document.getElementById('ciudadLng').value = ciudad.lng;
-                        
-                        listaCiudadesDiv.style.display = 'none';
-                        btnContinuar.disabled = false;
-                        mapa.flyTo([ciudad.lat, ciudad.lng], ciudad.z);
-                    };
-                    listaCiudadesDiv.appendChild(item);
-                });
-            } else {
-                listaCiudadesDiv.style.display = 'none';
-                btnContinuar.disabled = true;
-            }
-        });
-
-        function irAPaso(paso) {
-            document.querySelectorAll('.paso-contenedor').forEach(el => el.classList.remove('activo'));
-            document.getElementById(`paso${paso}`).classList.add('activo');
-            document.getElementById('indicadorPaso').innerText = `Paso ${paso} de 4`;
-            pasoActual = paso;
-        }
-
-        function reiniciarApp() {
-            puntosDespacho = [];
-            marcadores.forEach(m => mapa.removeLayer(m));
-            marcadores = [];
-            if (capaRuta) mapa.removeLayer(capaRuta);
-            actualizarContador();
-            document.getElementById('btnConfirmaNegocio').disabled = true;
-            irAPaso(1);
-        }
-
-        function actualizarContador() {
-            const count = Math.max(0, puntosDespacho.length - 1);
-            document.getElementById('contador').innerText = count;
-            document.getElementById('btnCalcularRuta').disabled = (count === 0);
-        }
-
-        function eliminarMarcador(marcador) {
-            if (pasoActual !== 3) return; // Solo permitir borrar antes de calcular ruta
-            
-            const index = marcadores.indexOf(marcador);
-            if (index > 0) { // No borrar el almacén (índice 0)
-                mapa.removeLayer(marcador);
-                marcadores.splice(index, 1);
-                puntosDespacho.splice(index, 1);
-                
-                // Renumerar los marcadores restantes
-                for (let i = 1; i < marcadores.length; i++) {
-                    marcadores[i].setIcon(iconoEntrega(i));
-                    marcadores[i].setTooltipContent(`Entrega #${i} (Click para eliminar)`);
-                }
-                actualizarContador();
-            }
-        }
-
-        function agregarPunto(lat, lng) {
-            if (pasoActual === 2) {
-                if (puntosDespacho.length > 0) {
-                    puntosDespacho[0] = [lng, lat];
-                    marcadores[0].setLatLng([lat, lng]);
-                } else {
-                    puntosDespacho.push([lng, lat]);
-                    const m = L.marker([lat, lng], { icon: iconoAlmacen }).bindTooltip("Tu Negocio", { direction: 'top' }).addTo(mapa);
-                    marcadores.push(m);
-                }
-                document.getElementById('btnConfirmaNegocio').disabled = false;
-
-            } else if (pasoActual === 3) {
-                // REGLA DE NEGOCIO: Validar la distancia desde el almacén
-                const almacenLatLng = marcadores[0].getLatLng();
-                const distanciaMetros = mapa.distance(almacenLatLng, [lat, lng]);
-                
-                if (distanciaMetros > LIMITE_DISTANCIA_METROS) {
-                    alert(`⚠️ Punto fuera del área de cobertura.\nLa distancia en línea recta es de ${(distanciaMetros/1000).toFixed(1)} km.\nEl límite máximo de despacho por ruta es de ${LIMITE_DISTANCIA_METROS/1000} km.`);
-                    return;
-                }
-
-                puntosDespacho.push([lng, lat]);
-                const n = puntosDespacho.length - 1;
-                const m = L.marker([lat, lng], { icon: iconoEntrega(n) })
-                    .bindTooltip(`Entrega #${n} (Click para eliminar)`, { direction: 'top' })
-                    .addTo(mapa);
-                
-                // Evento para eliminar
-                m.on('click', function() { eliminarMarcador(this); });
-                
-                marcadores.push(m);
-                actualizarContador();
-            }
-        }
-
-        mapa.on('click', function(e) {
-            if (pasoActual === 2 || pasoActual === 3) {
-                agregarPunto(e.latlng.lat, e.latlng.lng);
-            }
-        });
-
-        // --- BUSCADOR ACORRALADO Y MÁS ESTRICTO ---
-        async function buscarDireccion(inputId) {
-            const inputDir = document.getElementById(inputId);
-            const texto = inputDir.value.trim();
-            if (!texto) return;
-
-            const ciudadNombre = document.getElementById('ciudadNombre').value;
-            const cLat = parseFloat(document.getElementById('ciudadLat').value);
-            const cLng = parseFloat(document.getElementById('ciudadLng').value);
-            
-            // Caja delimitadora reducida a ~16km para evitar puntos remotos
-            const offset = 0.15;
-            const left = cLng - offset;
-            const right = cLng + offset;
-            const top = cLat + offset;
-            const bottom = cLat - offset;
-            
-            // Fuerza la búsqueda incluyendo ciudad y país
-            const queryEstricto = `${texto}, ${ciudadNombre}, Perú`;
-            const url = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(queryEstricto)}&viewbox=${left},${top},${right},${bottom}&bounded=1&limit=1`;
-
-            try {
-                const respuesta = await fetch(url);
-                const datos = await respuesta.json();
-
-                if (datos.length > 0) {
-                    const lat = parseFloat(datos[0].lat);
-                    const lng = parseFloat(datos[0].lon);
-                    agregarPunto(lat, lng);
-                    mapa.flyTo([lat, lng], 16);
-                    inputDir.value = '';
-                } else {
-                    alert(`No se encontró la dirección dentro de un radio cercano en ${ciudadNombre}. Sé más específico agregando el distrito.`);
-                }
-            } catch (error) {
-                alert("Error de conexión al buscar la dirección.");
-            }
-        }
-
-        async function calcularRuta() {
-            const btn = document.getElementById('btnCalcularRuta');
-            btn.disabled = true;
-            btn.innerText = 'Trazando ruta...';
-
-            try {
-                const respuesta = await fetch(`${API_URL}/ruta`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        ciudad: document.getElementById('ciudadNombre').value,
-                        puntos: puntosDespacho
-                    })
-                });
-                const datos = await respuesta.json();
-
-                if (!respuesta.ok) throw new Error(datos.error || "Error desconocido");
-
-                if (capaRuta) mapa.removeLayer(capaRuta);
-                const linea = L.geoJSON(datos.geometry, { style: { color: '#000000', weight: 5, opacity: 0.8 } });
-                capaRuta = L.layerGroup([linea]).addTo(mapa);
-                mapa.fitBounds(linea.getBounds(), { padding: [50, 50] });
-
-                datos.orden.forEach((clic, i) => {
-                    marcadores[clic].setIcon(iconoEntrega(i + 1));
-                    marcadores[clic].setTooltipContent(`Parada ${i + 1} (Fija)`);
-                });
-
-                document.getElementById('rDistancia').innerText = (datos.distancia_m / 1000).toFixed(2) + ' km';
-                document.getElementById('rParadas').innerText = datos.paradas;
-                document.getElementById('rTotal').innerText = datos.tiempo_total_min + ' min';
-
-                irAPaso(4);
-            } catch (error) {
-                alert(error.message);
-                btn.disabled = false;
-                btn.innerText = 'Calcular Ruta Óptima';
-            }
-        }
-
-        function iniciarNavegacion() {
-            alert("¡Esta será la siguiente función a desarrollar! La cámara hará zoom, rotará según el GPS y te dará instrucciones paso a paso.");
-        }
-    </script>
+    <script type="module" src="js/main.js"></script>
 </body>
 </html>

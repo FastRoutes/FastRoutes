@@ -1,0 +1,57 @@
+/* ---- Botones ---- */
+.btn {
+    display: block; width: 100%; height: 50px; margin-top: 10px; border: 0; border-radius: var(--radio-ctrl);
+    font: 600 17px var(--fuente); letter-spacing: -.022em; cursor: pointer;
+    transition: transform .15s var(--resorte), filter .15s, opacity .2s;
+}
+.btn:active:not(:disabled) { transform: scale(.97); filter: brightness(.92); }
+.btn:disabled { opacity: .4; cursor: not-allowed; }
+.btn-principal { background: var(--azul); color: #fff; }
+.btn-secundario { background: color-mix(in srgb, var(--azul) 14%, transparent); color: var(--azul); }
+.btn-texto { background: none; color: var(--azul); height: 38px; font-size: 15px; font-weight: 500; }
+.btn:focus-visible, .campo input:focus-visible { outline: 3px solid color-mix(in srgb, var(--azul) 45%, transparent); outline-offset: 1px; }
+
+/* ---- Campo de búsqueda ---- */
+.campo { position: relative; flex: 1; }
+.campo svg { position: absolute; left: 11px; top: 50%; transform: translateY(-50%); color: var(--texto-2); pointer-events: none; }
+.campo input {
+    width: 100%; height: 42px; padding: 0 12px 0 36px; border: 0; border-radius: 12px;
+    background: var(--relleno); color: var(--texto); font: 400 17px var(--fuente); outline: none;
+}
+.campo input::placeholder { color: var(--texto-2); }
+.buscador { display: flex; gap: 8px; align-items: center; }
+.buscador .btn { width: auto; height: 42px; margin: 0; padding: 0 16px; font-size: 15px; }
+
+/* ---- Autocompletado ---- */
+.lista {
+    display: none; position: absolute; top: calc(100% + 6px); left: 0; right: 0; z-index: 2000;
+    max-height: 210px; overflow-y: auto; border-radius: var(--radio-ctrl); box-shadow: var(--sombra);
+    background: var(--vidrio); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px);
+}
+.lista-item { padding: 12px 14px; font-size: 16px; cursor: pointer; }
+.lista-item + .lista-item { border-top: .5px solid var(--separador); }
+.lista-item:hover { background: color-mix(in srgb, var(--azul) 14%, transparent); }
+
+/* ---- Listas agrupadas (Ajustes de iOS) ---- */
+.grupo { background: var(--relleno); border-radius: var(--radio-ctrl); margin-top: 14px; }
+.fila { display: flex; justify-content: space-between; align-items: center; padding: 12px 14px; font-size: 16px; }
+.fila + .fila { border-top: .5px solid var(--separador); }
+.fila span { color: var(--texto-2); }
+.fila b { font-weight: 600; }
+.fila #contador { font-size: 22px; font-weight: 700; color: var(--azul); }
+
+.total {
+    margin-top: 10px; padding: 14px 16px; border-radius: var(--radio-ctrl);
+    background: var(--verde); color: #fff;
+}
+.total span { display: block; font-size: 13px; opacity: .85; }
+.total b { font-size: 28px; font-weight: 700; letter-spacing: -.03em; }
+
+/* ---- Aviso (reemplaza a alert) ---- */
+#aviso {
+    position: fixed; top: 16px; left: 50%; z-index: 10000; max-width: min(92vw, 420px);
+    padding: 12px 18px; border-radius: 22px; font-size: 15px; font-weight: 500; text-align: center;
+    box-shadow: var(--sombra); transform: translate(-50%, -140%); opacity: 0;
+    transition: transform .5s var(--resorte), opacity .3s;
+}
+#aviso.visible { transform: translate(-50%, 0); opacity: 1; }
