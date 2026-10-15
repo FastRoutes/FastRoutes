@@ -9,7 +9,7 @@
 .marca { padding: 20px 22px 4px; display: flex; justify-content: space-between; align-items: center; }
 .marca h1 { margin: 0; font-size: 24px; letter-spacing: -.04em; line-height: 1; }
 .marca .fast { font-weight: 800; }
-.marca .routes { font-weight: 300; color: var(--azul); }
+.marca .routes { font-weight: 300; color: var(--marca); }
 
 /* Indicador de pasos tipo page-control de iOS */
 .progreso { display: flex; gap: 6px; }

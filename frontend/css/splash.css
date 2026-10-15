@@ -8,7 +8,7 @@
 #splash-delivery { width: 260px; margin-bottom: 6px; animation: rideDelivery 3s cubic-bezier(.4, 0, .2, 1) forwards; }
 .splash-logo { font-size: 56px; letter-spacing: -.045em; margin: 0; line-height: 1; }
 .splash-logo .fast { font-weight: 800; }
-.splash-logo .routes { font-weight: 300; color: var(--azul); }
+.splash-logo .routes { font-weight: 300; color: var(--marca); }
 .splash-slogan { margin-top: 10px; font-size: 15px; font-weight: 500; color: var(--texto-2); }
 
 @keyframes rideDelivery {

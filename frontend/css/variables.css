@@ -3,6 +3,7 @@
     --azul: #007aff;
     --verde: #34c759;
     --rojo: #ff3b30;
+    --marca: #000;
     --texto: #1c1c1e;
     --texto-2: rgba(60, 60, 67, .6);
     --vidrio: rgba(255, 255, 255, .72);
@@ -14,18 +15,4 @@
     --radio-panel: 30px;
     --radio-ctrl: 14px;
     --resorte: cubic-bezier(.2, .8, .2, 1);
-}
-
-@media (prefers-color-scheme: dark) {
-    :root {
-        --azul: #0a84ff;
-        --verde: #30d158;
-        --rojo: #ff453a;
-        --texto: #f5f5f7;
-        --texto-2: rgba(235, 235, 245, .6);
-        --vidrio: rgba(30, 30, 32, .72);
-        --vidrio-borde: rgba(255, 255, 255, .12);
-        --relleno: rgba(120, 120, 128, .24);
-        --separador: rgba(84, 84, 88, .55);
-    }
 }
