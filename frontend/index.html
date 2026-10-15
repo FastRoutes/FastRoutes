@@ -40,6 +40,21 @@
         .splash-logo .routes { font-weight: 300; color: var(--violeta); }
         .splash-slogan { margin-top: 10px; font-size: 14px; font-weight: 600; color: var(--muted); }
 
+        /* --- ANIMACIÓN DEL DELIVERY --- */
+        #splash-delivery {
+            width: 280px;
+            margin-bottom: 5px;
+            /* 3 segundos dura*/
+            animation: rideDelivery 3s cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
+
+        @keyframes rideDelivery {
+            0%   { transform: translateX(-150vw); } /* Inicia fuera por la izquierda */
+            40%  { transform: translateX(0); }      /* Llega al centro */
+            60%  { transform: translateX(0); }      /* Pausa en el centro */
+            100% { transform: translateX(150vw); }  /* Sale por la derecha */
+        }
+
         /* --- PANEL DE CONTROL --- */
         #panel {
             position: absolute; top: 16px; left: 16px; width: 320px;
@@ -121,6 +136,7 @@
 <body>
 
     <div id="splash">
+        <img src="delivery.png" id="splash-delivery" alt="Delivery">
         <h1 class="splash-logo"><span class="fast">FAST</span><span class="routes">Routes</span></h1>
         <div class="splash-slogan">Para ti, JJ...</div>
     </div>
@@ -164,7 +180,7 @@
 
             <div id="paso3" class="paso-contenedor">
                 <label class="titulo">¿Dónde están ubicadas las entregas?</label>
-                <p class="ayuda">Toca el mapa o busca direcciones. <b>Toca un marcador en el mapa para eliminarlo.</b> (Radio máximo: 15km)</p>
+                <p class="ayuda">Toca el mapa o busca direcciones. <b>Toca un marcador en el mapa para eliminarlo.</b> (Radio máximo:30km)</p>
 
                 <div class="buscador-flex">
                     <input type="text" id="dirDespacho" placeholder="Ej. Plaza San Miguel">
@@ -249,7 +265,7 @@
                         panel.style.transform = 'translateY(0)';
                     }, 50);
                 }, 600);
-            }, 1500);
+            }, 3000);
         };
 
         const mapa = L.map('map', { zoomControl: false }).setView([-12.0464, -77.0428], 12);
@@ -264,7 +280,7 @@
         let puntosDespacho = []; 
         let marcadores = [];
         let capaRuta = null;
-        const LIMITE_DISTANCIA_METROS = 15000; // Regla de negocio: 15 km máximo
+        const LIMITE_DISTANCIA_METROS = 30000; // Regla de negocio: 30 km máximo
 
         const iconoAlmacen = L.divIcon({
             className: '',
