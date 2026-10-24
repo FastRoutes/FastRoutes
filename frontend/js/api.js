@@ -11,7 +11,7 @@ export async function calcularRuta(ciudad, puntos) {
     return datos;
 }
 
-/** Pide al servidor que vaya descargando el mapa del almacén mientras el usuario sigue eligiendo. */
+// Petición al servidor para que vaya descargando el mapa del almacén mientras el usuario sigue eligiendo.
 export function precargarMapa(punto) {
     fetch(`${API_URL}/precargar`, {
         method: 'POST',
@@ -20,7 +20,7 @@ export function precargarMapa(punto) {
     }).catch(() => {});
 }
 
-/** Devuelve { lat, lng } o null si no hay resultado dentro de la ciudad. */
+// Devuelve { lat, lng } o null si no hay resultado dentro de la ciudad.
 export async function geocodificar(texto, ciudad) {
     const o = MARGEN_BUSQUEDA_GRADOS;
     const caja = [ciudad.lng - o, ciudad.lat + o, ciudad.lng + o, ciudad.lat - o].join(',');

@@ -1,4 +1,4 @@
-"""Reglas de negocio de la solicitud de ruta."""
+"""Reglas de negocio para pedir la ruta."""
 from config import CIUDADES, EXTENSION_MAX_GRADOS, MARGEN_GRADOS, MAX_PARADAS
 from grafo.geo import distancia_km
 
@@ -14,7 +14,7 @@ def punto_valido(p):
 
 
 def validar_solicitud(puntos, ciudad):
-    """Lanza ErrorNegocio si la solicitud incumple alguna regla."""
+    """ErrorNegocio si la solicitud incumple alguna regla."""
     if not isinstance(puntos, list) or not all(punto_valido(p) for p in puntos):
         raise ErrorNegocio("Formato de puntos inválido.")
     if len(puntos) < 2:

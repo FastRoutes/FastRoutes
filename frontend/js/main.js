@@ -9,7 +9,7 @@ import {
     $, actualizarContador, avisar, irAPaso, iniciarAutocompletado, iniciarSplash, mostrarMetricas,
 } from './panel.js';
 
-// ---------------------------------------------------------------- Navegación
+// Navegación
 function navegar(paso) {
     // Al confirmar el negocio, el servidor empieza a bajar el mapa mientras se eligen las entregas
     if (paso === 3 && estado.paso === 2) precargarMapa(estado.puntos[0]);
@@ -23,12 +23,12 @@ function reiniciar() {
     irAPaso(1);
 }
 
-// ------------------------------------------------------------ Puntos en el mapa
+// Puntos en el mapa
 function alQuitarEntrega(marcador) {
     if (estado.paso === 3 && quitarEntrega(marcador)) actualizarContador();
 }
 
-/** Aplica el clic (o la dirección buscada) según el paso actual. */
+// Aplica el clic o la dirección buscada según el paso actual.
 function colocarPunto(lat, lng) {
     if (estado.paso === 2) {
         colocarAlmacen(lat, lng);
@@ -62,7 +62,7 @@ async function buscarDireccion(idInput) {
     }
 }
 
-// ------------------------------------------------------------------ Ruta
+// Ruta
 async function alCalcularRuta() {
     const boton = $('btnCalcularRuta');
     boton.disabled = true;
@@ -81,7 +81,7 @@ async function alCalcularRuta() {
     }
 }
 
-// ---------------------------------------------------------------- Arranque
+// Arranque
 iniciarSplash(DURACION_SPLASH_MS);
 iniciarAutocompletado(ciudad => {
     estado.ciudad = ciudad;

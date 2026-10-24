@@ -1,3 +1,5 @@
+// Ubicaciones de todas las ciudades del Perú en coordenadas
+
 export const CIUDADES = [
     { nombre: 'Lima', lat: -12.0464, lng: -77.0428, z: 12 },
     { nombre: 'Arequipa', lat: -16.4090, lng: -71.5375, z: 13 },

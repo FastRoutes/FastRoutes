@@ -1,4 +1,4 @@
-"""Caso de uso: calcular la ruta óptima de un viaje (almacén + entregas)."""
+"""Cálculo de la ruta óptima de un viaje almacén -> entregas."""
 import logging
 import time
 

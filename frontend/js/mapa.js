@@ -40,7 +40,7 @@ export function agregarEntrega(lat, lng, alHacerClic) {
     estado.marcadores.push(marcador);
 }
 
-/** Quita una entrega (nunca el almacén) y renumera las restantes. */
+// Quita una entrega y renumera las otras.
 export function quitarEntrega(marcador) {
     const i = estado.marcadores.indexOf(marcador);
     if (i < 1) return false;
@@ -55,7 +55,7 @@ export function quitarEntrega(marcador) {
     return true;
 }
 
-/** Numera los marcadores según el orden óptimo de visita. */
+// Numera los marcadores según el orden óptimo de visita.
 export function numerarSegunOrden(orden) {
     orden.forEach((indice, posicion) => {
         const m = estado.marcadores[indice];
