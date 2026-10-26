@@ -1,4 +1,4 @@
-// Ubicaciones de todas las ciudades del Perú en coordenadas
+// Ubicaciones de todas las ciudades del Perú en coordenadas Latitud-Longitud y nivel de zoom para el mapa
 
 export const CIUDADES = [
     { nombre: 'Lima', lat: -12.0464, lng: -77.0428, z: 12 },
@@ -29,3 +29,7 @@ export const CIUDADES = [
     { nombre: 'Moyobamba', lat: -6.0342, lng: -76.9723, z: 14 },
     { nombre: 'Huancavelica', lat: -12.7826, lng: -74.9727, z: 14 },
 ];
+
+let n_ciudadInicial = 'Lima'; // Ciudad inicial por defecto
+
+export const ciudadInicial = CIUDADES.find(ciudad => ciudad.nombre === n_ciudadInicial); // Dict que guarda los datos de la ciudad inicial

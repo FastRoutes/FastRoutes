@@ -1,5 +1,5 @@
-import { CIUDADES } from './ciudades.js';
-import { estado } from './estado.js';
+import { CIUDADES } from './ciudades.js'; // Importa la lista de ciudades con coordenadas
+import { estado } from './estado.js'; // Importa el estado compartido de la aplicación
 
 export const $ = id => document.getElementById(id);
 const normalizar = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim();

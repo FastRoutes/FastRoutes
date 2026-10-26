@@ -1,5 +1,5 @@
-import { CENTRO_INICIAL, TILES } from './config.js';
-import { estado } from './estado.js';
+import { CENTRO_INICIAL, TILES } from './config.js'; // Importa la configuración del mapa OpenStreetMap France (HOT) y el centro inicial
+import { estado } from './estado.js'; // Importa el estado compartido de la aplicación
 
 export const mapa = L.map('map', { zoomControl: false }).setView(CENTRO_INICIAL, 12);
 L.control.zoom({ position: 'bottomright' }).addTo(mapa);
