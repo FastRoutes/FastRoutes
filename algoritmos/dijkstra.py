@@ -6,8 +6,10 @@ INF = math.inf
 
 def dijkstra(adj, origen, objetivos=None):
     """
-    adj: {nodo: [(vecino, tiempo_s, metros, geometria), ...]}  (grafo dirigido)
-    Devuelve (tiempo, previo); previo[v] = (u, metros_arista, geometria).
+    Nodos: u y v 
+    adj: grafo dirigido
+    Devuelve (tiempo, previo); 
+    previo[v] = (u, metros_arista, geometria).
     Si se dan 'objetivos', se detiene al haberlos fijado a todos.
     """
     tiempo = {origen: 0.0}
@@ -18,7 +20,7 @@ def dijkstra(adj, origen, objetivos=None):
 
     while cola:
         t, u = sacar(cola)
-        if t > tiempo[u]:      # entrada obsoleta
+        if t > tiempo[u]:      
             continue
         if pendientes is not None:
             pendientes.discard(u)
@@ -34,7 +36,7 @@ def dijkstra(adj, origen, objetivos=None):
 
 
 def reconstruir_camino(previo, origen, destino):
-    """(geometrías de las aristas origen→destino, metros totales)."""
+    """Recorre nodos desde el origen hasta llegar al destino (actual) y devuelve la lista de geometrías y la distancia total en metros."""
     tramos, metros, actual = [], 0.0, destino
     while actual != origen:
         anterior, m, geom = previo[actual]
@@ -46,7 +48,7 @@ def reconstruir_camino(previo, origen, destino):
 
 
 def aplanar(tramos):
-    """Une las geometrías en una sola línea [[lng, lat], ...] sin puntos repetidos."""
+    """Une los tramos individuales en una sola línea continua."""
     linea = []
     for geom in tramos:
         for x, y in (geom.coords if hasattr(geom, "coords") else geom):

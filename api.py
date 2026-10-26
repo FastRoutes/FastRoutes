@@ -25,7 +25,7 @@ def ruta():
 
 @bp.post("/precargar")
 def precargar():
-    """Calienta el caché del mapa alrededor del almacén mientras el usuario elige entregas."""
+    """Carga los datos en la memoria con anticipación mientras el usuario elige entregas."""
     punto = (request.get_json(silent=True) or {}).get("punto")
     if not punto_valido(punto):
         return jsonify(error="Punto inválido."), 400

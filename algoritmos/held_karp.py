@@ -2,7 +2,7 @@ from .dijkstra import INF
 
 
 def held_karp(C):
-    """Solución exacta (programación dinámica con bitmask). O(n^2 * 2^n)."""
+    """Encuentra la ruta optima con programación dinámica."""
     n = len(C) - 1
     if n <= 1:
         return list(range(1, n + 1))

@@ -2,8 +2,9 @@
 FastRoutes - Algoritmos propios
 
 Convención de la matriz de costos C (n+1 x n+1):
-    índice 0 = almacén, 1..n = paradas en el orden en que se hizo clic.
-    C[i][j] = tiempo (s) de i a j respetando el sentido de las calles (asimétrica).
+    índice 0 = almacén.
+    n = paradas en el orden en que se hizo clic.
+    C[i][j] = tiempo de i a j respetando el sentido de las calles (asimétrica).
 """
 from .circuito import mejor_circuito
 from .dijkstra import INF, aplanar, dijkstra, reconstruir_camino

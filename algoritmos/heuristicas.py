@@ -15,7 +15,7 @@ def vecino_mas_cercano(C):
 
 
 def dos_opt(C, orden):
-    """Mejora local: invierte tramos mientras reduzca el costo total. Hola Fabri"""
+    """Mejora local: invierte tramos mientras reduzca el costo total."""
     mejor = list(orden)
     mejor_costo = costo_circuito(C, mejor)
     mejoro = True

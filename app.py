@@ -1,4 +1,4 @@
-"""FastRoutes - Servidor Flask (fábrica de la aplicación y archivos estáticos)."""
+"""FastRoutes - Servidor Flask (creación de la aplicación y archivos estáticos)."""
 from flask import Flask, send_from_directory
 
 from api import bp
