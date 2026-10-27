@@ -1,6 +1,4 @@
 from functools import lru_cache
-
-# Velocidad (km/h) cuando la calle no trae 'maxspeed'
 VELOCIDAD_POR_TIPO = {
     "motorway": 80, "trunk": 70, "primary": 50, "secondary": 40,
     "tertiary": 35, "unclassified": 30, "residential": 25,
@@ -8,12 +6,8 @@ VELOCIDAD_POR_TIPO = {
 }
 VELOCIDAD_DEFECTO = 30
 VELOCIDAD_MINIMA = 10
-
-
 def _primero(valor):
     return valor[0] if isinstance(valor, list) else valor
-
-
 @lru_cache(maxsize=None)
 def _calcular(maxspeed, tipo):
     if isinstance(maxspeed, str):
@@ -28,5 +22,4 @@ def _calcular(maxspeed, tipo):
 
 
 def velocidad_kmh(datos):
-    """Velocidad de una arista de osmnx (memoizada: hay pocas combinaciones distintas)."""
     return _calcular(_primero(datos.get("maxspeed")), _primero(datos.get("highway")))
