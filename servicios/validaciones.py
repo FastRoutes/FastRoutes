@@ -14,7 +14,7 @@ def punto_valido(p):
 
 
 def validar_solicitud(puntos, ciudad):
-    """ErrorNegocio si la solicitud incumple alguna regla."""
+    """Error de Negocio si la solicitud incumple alguna regla."""
     if not isinstance(puntos, list) or not all(punto_valido(p) for p in puntos):
         raise ErrorNegocio("Formato de puntos inválido.")
     if len(puntos) < 2:
