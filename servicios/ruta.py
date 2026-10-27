@@ -69,6 +69,10 @@ def calcular_ruta(puntos, ciudad):
     orden, metodo = algoritmos.mejor_circuito(costos, LIMITE_EXACTO)
     secuencia = [0] + orden + [0]
     linea, metros = _trazar(nodos, secuencia, resultados)
+    if len(linea) < 2:
+        raise ErrorNegocio(
+            "Las entregas están en el mismo cruce que el negocio. "
+            "Sepáralas para poder trazar una ruta.", 422)
     segundos = sum(costos[a][b] for a, b in zip(secuencia, secuencia[1:]))
     t3 = time.perf_counter()
 

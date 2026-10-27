@@ -1,4 +1,5 @@
 """FastRoutes - Constantes y reglas de negocio."""
+import json
 from pathlib import Path
 
 BASE_DIR = Path(__file__).resolve().parent
@@ -12,10 +13,6 @@ PRECARGA_GRADOS = 0.05        # ~5.5 km alrededor del almacén (precarga en segu
 LIMITE_EXACTO = 12            # hasta aquí se usa Held-Karp; después, heurística
 
 # (latitud, longitud, radio en km): una ruta no puede salir de su ciudad
-CIUDADES = {
-    "Lima": (-12.0464, -77.0428, 40),
-    "Arequipa": (-16.4090, -71.5375, 20),
-    "Cusco": (-13.5320, -71.9675, 15),
-    "Trujillo": (-8.1091, -79.0215, 20),
-    "Piura": (-5.1945, -80.6328, 20),
-}
+# Fuente única de ciudades: la comparte el front (frontend/ciudades.json)
+with open(FRONTEND_DIR / "ciudades.json", encoding="utf-8") as f:
+    CIUDADES = {c["nombre"]: (c["lat"], c["lng"], c["radio_km"]) for c in json.load(f)}

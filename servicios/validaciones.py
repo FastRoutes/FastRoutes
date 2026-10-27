@@ -22,10 +22,11 @@ def validar_solicitud(puntos, ciudad):
     if len(puntos) - 1 > MAX_PARADAS:
         raise ErrorNegocio(f"Máximo {MAX_PARADAS} paradas por viaje.")
 
-    if ciudad in CIUDADES:
-        lat_c, lng_c, radio = CIUDADES[ciudad]
-        if any(distancia_km(lat_c, lng_c, lat, lng) > radio for lng, lat in puntos):
-            raise ErrorNegocio(f"Todos los puntos deben estar dentro de {ciudad}.")
+    if ciudad not in CIUDADES:
+        raise ErrorNegocio("Ciudad no soportada.")
+    lat_c, lng_c, radio = CIUDADES[ciudad]
+    if any(distancia_km(lat_c, lng_c, lat, lng) > radio for lng, lat in puntos):
+        raise ErrorNegocio(f"Todos los puntos deben estar dentro de {ciudad}.")
 
     lngs, lats = zip(*puntos)
     if (max(lngs) - min(lngs) > EXTENSION_MAX_GRADOS
