@@ -1,16 +1,10 @@
 import threading
 from collections import OrderedDict
-
-
 def contiene(grande, chico):
-    """Cajas como (norte, sur, este, oeste)."""
     return (grande[0] >= chico[0] and grande[1] <= chico[1]
             and grande[2] >= chico[2] and grande[3] <= chico[3])
 
-
 class CacheGrafos:
-    """Caché LRU: una consulta acierta si alguna caja guardada la contiene por completo."""
-
     def __init__(self, capacidad=4):
         self._capacidad = capacidad
         self._items = OrderedDict()
