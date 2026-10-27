@@ -1,4 +1,4 @@
-import { CIUDADES, ciudadInicial } from './ciudades.js'; // Importa todas las ciudades y la ciudad inicial definida
+import { ciudadInicial } from './ciudades.js'; // Importa la ciudad inicial definida
 
 export const API_URL = '/api'; // URL ruta base para las llamadas a la API
 export const LIMITE_DISTANCIA_METROS = 30000;   // Para no ir más allá de 30km alrededor del negocio (Regla de negocio)

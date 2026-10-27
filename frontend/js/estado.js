@@ -1,4 +1,4 @@
-import { CIUDADES, ciudadInicial } from './ciudades.js'; // Importa todas las ciudades y la ciudad inicial definida
+import { ciudadInicial } from './ciudades.js'; // Importa la ciudad inicial definida
 
 // Estado compartido de la aplicación que guarda los datos del mapa.
 // puntos[i] = [lng, lat]; marcadores[i] es su marcador de Leaflet. Índice 0 = almacén.
