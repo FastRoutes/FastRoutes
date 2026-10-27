@@ -5,18 +5,14 @@
     transition: opacity .5s ease, transform .6s var(--resorte);
 }
 #panel.visible { opacity: 1; transform: none; }
-
 .marca { padding: 20px 22px 4px; display: flex; justify-content: space-between; align-items: center; }
 .marca h1 { margin: 0; font-size: 24px; letter-spacing: -.04em; line-height: 1; }
 .marca .fast { font-weight: 800; }
 .marca .routes { font-weight: 300; color: var(--marca); }
-
-/* Indicador de pasos tipo page-control de iOS */
 .progreso { display: flex; gap: 6px; }
 .progreso span { width: 7px; height: 7px; border-radius: 50%; background: var(--separador); transition: background .3s, width .3s var(--resorte); }
 .progreso span.activo { background: var(--azul); }
 .progreso span.actual { width: 20px; border-radius: 4px; }
-
 .cuerpo { padding: 14px 22px 22px; }
 .paso-contenedor { display: none; }
 .paso-contenedor.activo { display: block; animation: entrada .35s var(--resorte); }
@@ -30,7 +26,7 @@
         top: auto; bottom: 0; left: 0; width: 100%; border-radius: 30px 30px 0 0;
         padding-bottom: env(safe-area-inset-bottom);
     }
-    #panel::before { /* grabber */
+    #panel::before {
         content: ""; display: block; width: 36px; height: 5px; border-radius: 3px;
         background: var(--separador); margin: 8px auto 0;
     }
