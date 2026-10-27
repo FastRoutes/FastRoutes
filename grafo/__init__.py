@@ -1,9 +1,3 @@
-"""
-FastRoutes - Grafo vial dirigido
-
-obtener_grafo(): devuelve el grafo de una caja (reutiliza cachés o descarga).
-precargar():     descarga en segundo plano la zona del almacén.
-"""
 import logging
 import math
 import threading
@@ -16,10 +10,10 @@ from .modelo import Grafo
 __all__ = ["Grafo", "distancia_km", "obtener_grafo", "precargar"]
 
 log = logging.getLogger(__name__)
-PASO_GRADOS = 0.01  # las descargas se alinean a esta rejilla para que más consultas encajen
+PASO_GRADOS = 0.01  
 
 _cache = CacheGrafos(capacidad=4)
-_candado_descarga = threading.Lock()  # evita descargar dos veces la misma zona
+_candado_descarga = threading.Lock()  
 
 
 def _alinear(norte, sur, este, oeste):
@@ -34,7 +28,7 @@ def obtener_grafo(norte, sur, este, oeste):
     if grafo:
         return grafo
     with _candado_descarga:
-        grafo = _cache.buscar(caja)  # quizá la precarga terminó mientras esperábamos
+        grafo = _cache.buscar(caja) 
         if grafo:
             return grafo
         ampliada = _alinear(*caja)
