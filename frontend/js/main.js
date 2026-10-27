@@ -1,3 +1,4 @@
+// Archivo central JavaScript del FrontEnd. Encargada de la interacción usuario-servidor. Importa funciones y constantes del resto de módulos .js. Se ejecuta al cargar la página.
 import { calcularRuta, geocodificar, precargarMapa } from './api.js';
 import { DURACION_SPLASH_MS, LIMITE_DISTANCIA_METROS } from './config.js';
 import { estado } from './estado.js';
@@ -9,7 +10,6 @@ import {
     $, actualizarContador, avisar, irAPaso, iniciarAutocompletado, iniciarSplash, mostrarMetricas,
 } from './panel.js';
 
-// Navegación
 function navegar(paso) {
     // Al confirmar el negocio, el servidor empieza a bajar el mapa mientras se eligen las entregas
     if (paso === 3 && estado.paso === 2) precargarMapa(estado.puntos[0]);
