@@ -1,4 +1,4 @@
-"""Cálculo de la ruta óptima de un viaje almacén -> entregas."""
+"""Cálculo para la ruta más óptima de un viaje (almacén -> entregas)."""
 import logging
 import time
 
@@ -22,7 +22,7 @@ def _cargar_grafo(puntos):
 
 
 def _dijkstra_por_nodo(adj, nodos):
-    """Un Dijkstra por nodo distinto (los puntos que caen en el mismo cruce se reutilizan)."""
+    """Un Dijkstra por nodo distinto (los puntos en el mismo cruce se reutilizan)."""
     unicos = set(nodos)
     return {n: algoritmos.dijkstra(adj, n, unicos - {n}) for n in unicos}
 
