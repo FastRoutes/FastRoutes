@@ -73,6 +73,7 @@ export function iniciarAutocompletado(alElegir) { // Función invocada cuando se
 
 // Lo que sale al inicio: transición entre logo y programa.
 export function iniciarSplash(duracionMs) {
+    $('splash-delivery').classList.add('andando');
     setTimeout(() => {
         const splash = $('splash'); // Busca el elemento "splash"
         splash.style.opacity = '0'; // Opacidad 0 = se desvanece al pasar duracionMs

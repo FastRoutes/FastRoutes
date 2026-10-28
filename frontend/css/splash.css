@@ -5,7 +5,8 @@
     backdrop-filter: blur(28px) saturate(160%); -webkit-backdrop-filter: blur(28px) saturate(160%);
     transition: opacity .6s ease;
 }
-#splash-delivery { width: 260px; margin-bottom: 6px; animation: rideDelivery 3s cubic-bezier(.4, 0, .2, 1) forwards; }
+#splash-delivery { width: 260px; margin-bottom: 6px; transform: translateX(-150vw); }
+#splash-delivery.andando { animation: rideDelivery 3s cubic-bezier(.4, 0, .2, 1) forwards; }
 .splash-logo { font-size: 56px; letter-spacing: -.045em; margin: 0; line-height: 1; }
 .splash-logo .fast { font-weight: 800; }
 .splash-logo .routes { font-weight: 300; color: var(--marca); }

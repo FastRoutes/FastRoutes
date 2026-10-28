@@ -30,4 +30,7 @@ body {
 }
 .leaflet-container .leaflet-control-attribution a { color: var(--azul); }
 
-@media (prefers-reduced-motion: reduce) { * { animation-duration: .01ms !important; transition-duration: .01ms !important; } }
+@media (prefers-reduced-motion: reduce) {
+    * { animation-duration: .01ms !important; transition-duration: .01ms !important; }
+    #splash-delivery, #splash-delivery.andando { animation-duration: 3s !important; }
+}
