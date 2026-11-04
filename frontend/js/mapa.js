@@ -1,9 +1,11 @@
-import { CENTRO_INICIAL, TILES } from './config.js'; // Importa la configuración del mapa OpenStreetMap France (HOT) y el centro inicial
+import { CENTRO_INICIAL, TILES, PADDING_RUTA } from './config.js'; // Importa la configuración del mapa OpenStreetMap France (HOT) y el centro inicial
 import { estado } from './estado.js'; // Importa el estado compartido de la aplicación
 
 export const mapa = L.map('map', { zoomControl: false }).setView(CENTRO_INICIAL, 12); // Crea un mapa Leaflet centrado con zoom 12. Es un elemento HTML con id="map".
 L.control.zoom({ position: 'bottomright' }).addTo(mapa); // Implementación de un zoom-controller en la esquina inferior derecha del mapa
 L.tileLayer(TILES.url, TILES.opciones).addTo(mapa); // Carga los tiles desde OSM France (HOT) y los añade al mapa
+
+const esMovil = () => window.matchMedia('(max-width: 600px)').matches;
 
 // Marcadores de almacén y puntos de entrega: Casa es un SVG para el marcador de negocio. Se usa divIcon para poder personalizar el contenido HTML y el estilo CSS.
 const ICONO_CASA = '<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>';
@@ -76,7 +78,7 @@ export function dibujarRuta(geometry) {
     const borde = L.geoJSON(geometry, { style: { ...opciones, color: '#fff', weight: 9, opacity: .95 } });
     const linea = L.geoJSON(geometry, { style: { ...opciones, color: '#007aff', weight: 5 } });
     estado.capaRuta = L.layerGroup([borde, linea]).addTo(mapa); // Añade la capa de la ruta al mapa
-    mapa.fitBounds(linea.getBounds(), { paddingTopLeft: [380, 50], paddingBottomRight: [50, 50] }); // Ajusta el mapa para visualizar la ruta
+    mapa.fitBounds(linea.getBounds(), esMovil() ? PADDING_RUTA.movil : PADDING_RUTA.escritorio); // Ajusta el mapa para visualizar la ruta
 }
 
 // Si hay una ruta en el estado, se elimina y se reestablece a null.

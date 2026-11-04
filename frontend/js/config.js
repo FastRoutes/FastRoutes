@@ -6,6 +6,12 @@ export const CENTRO_INICIAL = [ciudadInicial.lat, ciudadInicial.lng]; // Coorden
 export const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'; // Motor de geocodificación de OpenStreetMap (Sin API-key)
 export const MARGEN_BUSQUEDA_GRADOS = 0.15; // Caja de búsqueda alrededor de la ciudad
 export const DURACION_SPLASH_MS = 3000; // Tiempo que dura lo que sale al inicio en ms
+export const MAX_PARADAS = 15; // Número máximo de entregas por viaje
+
+export const PADDING_RUTA = {
+    escritorio: { paddingTopLeft: [380, 50], paddingBottomRight: [50, 50] },
+    movil: { paddingTopLeft: [30, 30], paddingBottomRight: [30, 360] },   // ajusta 360 a la altura real del panel
+};
 
 // Para crear el mapa sin depender de API-key, se utilizó OpenStreetMap France (HOT)
 export const TILES = {

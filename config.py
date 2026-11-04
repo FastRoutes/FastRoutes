@@ -5,6 +5,7 @@ from pathlib import Path
 BASE_DIR = Path(__file__).resolve().parent
 FRONTEND_DIR = BASE_DIR / "frontend"
 
+RADIO_MAX_ENTREGA_KM = 30
 MAX_PARADAS = 15
 TIEMPO_SERVICIO_MIN = 5
 MARGEN_GRADOS = 0.01          # ~1.1 km alrededor de los puntos

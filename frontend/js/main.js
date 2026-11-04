@@ -16,13 +16,14 @@ function navegar(paso) {
     irAPaso(paso); // Se actualiza el estado a paso 3 (confirmación de entregas).
 }
 
-// Reinicio total de la aplicación
-function reiniciar() {
+function vaciarPuntos() {
     limpiarMapa(); // Limpieza total del mapa
     actualizarContador(); // Se reinicia el contador de entregas
     $('btnConfirmaNegocio').disabled = true; // Se deshabilita el botón de confirmación del negocio
-    irAPaso(1); // Volvemos al paso 1: seleccionar ciudad.
 }
+
+// Reinicio total de la aplicación: limpieza y vuelta al paso 1
+function reiniciar() { vaciarPuntos(); irAPaso(1); }
 
 // Interacción con marcadores de entrega (paso 3): si se quita uno, se actualiza el contador
 function alQuitarEntrega(marcador) {
@@ -32,35 +33,51 @@ function alQuitarEntrega(marcador) {
 // Aplica clic/dirección buscada según el paso actual (negocio / entrega).
 function colocarPunto(lat, lng) {
     if (estado.paso === 2) {
+        const fuera = estado.puntos.slice(1)
+            .some(([ln, lt]) => mapa.distance([lat, lng], [lt, ln]) > LIMITE_DISTANCIA_METROS);
+        if (fuera) { avisar('Algunas entregas quedarían a más de 30 km del nuevo negocio.'); return false; }
         colocarAlmacen(lat, lng); // Coloca el marcador de negocio
         $('btnConfirmaNegocio').disabled = false; // Permite confirmar
+        return true;
     } else if (estado.paso === 3) {
+        if (estado.puntos.length - 1 >= MAX_PARADAS) { avisar(`Máximo ${MAX_PARADAS} paradas por viaje.`); return false; }
         const metros = distanciaAlAlmacen(lat, lng); // Calcula distancia hasta el almacén
         if (metros > LIMITE_DISTANCIA_METROS) { // Fuera del rango permitido
             avisar(`Fuera de cobertura: ${(metros / 1000).toFixed(1)} km en línea recta. El máximo es ${LIMITE_DISTANCIA_METROS / 1000} km.`);
-            return;
+            return false;
         }
         agregarEntrega(lat, lng, alQuitarEntrega); // Agrega el marcador de entrega y le asigna la función de callback al quitarlo
         actualizarContador(); // Se actualiza el contador de entregas
+        return true;
     }
 }
 
 // Función asíncrona: Busca una dirección ingresada y coloca el marcador en el mapa.
+let buscando = false;
 async function buscarDireccion(idInput) {
+    if (buscando) return; // Evita que se ejecute varias veces a la vez
     const entrada = $(idInput); // Obtiene el input según el id
     const texto = entrada.value.trim(); // Elimina espacios al inicio y final del texto ingresado
     if (!texto) return; // Si el campo está vacío no hace nada
+    buscando=true; // Bloquea la función hasta que termine la búsqueda
     try {
-        const lugar = await geocodificar(texto, estado.ciudad); // Espera la respuesta de geocodificación de la dirección ingresada en el input. 
+        let lugar;
+        try {
+            lugar = await geocodificar(texto, estado.ciudad); // Espera la respuesta de geocodificación de la dirección ingresada en el input. 
+        } catch {
+            avisar(`No encontramos esa dirección en ${estado.ciudad.nombre}. Agrega el distrito.`);
+            return;
+        }
+        
         if (!lugar) { // Si no hay resultado...
             avisar(`No encontramos esa dirección en ${estado.ciudad.nombre}. Agrega el distrito.`);
             return;
         }
-        colocarPunto(lugar.lat, lugar.lng); // Coloca el marcador según el paso actual (negocio / entrega)
+        if (!colocarPunto(lugar.lat, lugar.lng)) return;// Coloca el marcador según el paso actual (negocio / entrega)
         mapa.flyTo([lugar.lat, lugar.lng], 16); // Centra el mapa en la dirección encontrada
         entrada.value = ''; // Limpia el input
-    } catch {
-        avisar('Sin conexión al buscar la dirección. Inténtalo de nuevo.'); // Fallo de conexión al procesar la respuesta
+    } finally {
+        buscando=false; // Desbloquea la función
     }
 }
 
@@ -76,7 +93,7 @@ async function alCalcularRuta() {
         mostrarMetricas(datos); // Muestra las métricas de la ruta (distancia, tiempos, etc.)
         irAPaso(4); // Continúa al paso 4: ruta óptima calculada y mostrada.
     } catch (error) {
-        avisar(error.message);
+        avisar(error.message); // Muestra el error en la interfaz
     } finally { // Se ejecuta SIEMPRE
         boton.textContent = 'Calcular ruta óptima'; // Restaura el texto del botón
         actualizarContador(); // Actualiza el contador de entregas
@@ -85,6 +102,7 @@ async function alCalcularRuta() {
 
 iniciarSplash(DURACION_SPLASH_MS); // Splash inicial con duración
 iniciarAutocompletado(ciudad => { // Activación del buscador de ciudades (paso 1) con función callback
+    if (ciudad.nombre !== estado.ciudad.nombre) vaciarPuntos(); // Nueva ciudad no necesita los puntos anteriores
     estado.ciudad = ciudad; // Cuando el usuario elija, la guarda en el estado
     mapa.flyTo([ciudad.lat, ciudad.lng], ciudad.z); // Centra el mapa en dicha ciudad
 });

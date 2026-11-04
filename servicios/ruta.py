@@ -5,13 +5,22 @@ import time
 import algoritmos
 import grafo
 from algoritmos import INF
-from config import LIMITE_EXACTO, TIEMPO_SERVICIO_MIN
+from config import LIMITE_EXACTO, TIEMPO_SERVICIO_MIN, DISTANCIA_MAX_A_CALLE_M
 
 from .errores import ErrorNegocio
 from .validaciones import caja_con_margen, validar_solicitud
 
 log = logging.getLogger(__name__)
 
+def _ajustar_a_calles(g, puntos):
+    nodos = []
+    for i, (lng, lat) in enumerate(puntos):
+        nodo, metros = g.nodo_y_distancia(lng, lat)
+        if metros > DISTANCIA_MAX_A_CALLE_M:
+            quien = "El negocio" if i == 0 else f"La entrega #{i}"
+            raise ErrorNegocio(f"{quien} está a {metros:.0f} m de la calle más cercana. Muévelo.", 422)
+        nodos.append(nodo)
+    return nodos
 
 def _cargar_grafo(puntos):
     try:
@@ -61,7 +70,7 @@ def calcular_ruta(puntos, ciudad):
     g = _cargar_grafo(puntos)
     t1 = time.perf_counter()
 
-    nodos = [g.nodo_mas_cercano(lng, lat) for lng, lat in puntos]
+    nodos = _ajustar_a_calles(g, puntos)
     resultados = _dijkstra_por_nodo(g.adj, nodos)
     costos = _matriz_costos(nodos, resultados)
     t2 = time.perf_counter()
