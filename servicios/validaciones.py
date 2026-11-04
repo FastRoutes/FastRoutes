@@ -42,9 +42,6 @@ def validar_solicitud(puntos, ciudad):
 
     if _hay_fuera_de_ciudad(ciudad, puntos):
         raise ErrorNegocio(f"Todos los puntos deben estar dentro de {ciudad}.")
-    lat_c, lng_c, radio = CIUDADES[ciudad]
-    if any(distancia_km(lat_c, lng_c, lat, lng) > radio for lng, lat in puntos):
-        raise ErrorNegocio(f"Todos los puntos deben estar dentro de {ciudad}.")
 
     alm_lng, alm_lat = puntos[0]
     if any(distancia_km(alm_lat, alm_lng, lat, lng) > RADIO_MAX_ENTREGA_KM

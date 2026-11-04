@@ -7,7 +7,7 @@ log = logging.getLogger(__name__)
 import grafo
 from config import MAX_PARADAS, PRECARGA_GRADOS, RADIO_MAX_ENTREGA_KM
 from servicios import ErrorNegocio, calcular_ruta
-from servicios.validaciones import punto_valido, validar_punto_precarga
+from servicios.validaciones import validar_punto_precarga
 
 bp = Blueprint("api", __name__, url_prefix="/api")
 

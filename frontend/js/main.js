@@ -1,6 +1,6 @@
 // Archivo central JavaScript del FrontEnd. Encargada de la interacción usuario-servidor. Importa funciones y constantes del resto de módulos .js. Se ejecuta al cargar la página.
 import { calcularRuta, geocodificar, precargarMapa } from './api.js';
-import { DURACION_SPLASH_MS, LIMITE_DISTANCIA_METROS } from './config.js';
+import { DURACION_SPLASH_MS, LIMITE_DISTANCIA_METROS, MAX_PARADAS } from './config.js';
 import { estado } from './estado.js';
 import {
     agregarEntrega, colocarAlmacen, dibujarRuta, distanciaAlAlmacen,
@@ -12,7 +12,7 @@ import {
 
 function navegar(paso) {
     // Si el negocio ha sido confirmado (paso 2 en estado), se inicia la precarga del mapa alrededor de este.
-    if (paso === 3 && estado.paso === 2) precargarMapa(estado.puntos[0]);
+    if (paso === 3 && estado.paso === 2) precargarMapa(estado.puntos[0], estado.ciudad.nombre);
     irAPaso(paso); // Se actualiza el estado a paso 3 (confirmación de entregas).
 }
 
@@ -65,7 +65,7 @@ async function buscarDireccion(idInput) {
         try {
             lugar = await geocodificar(texto, estado.ciudad); // Espera la respuesta de geocodificación de la dirección ingresada en el input. 
         } catch {
-            avisar(`No encontramos esa dirección en ${estado.ciudad.nombre}. Agrega el distrito.`);
+            avisar('No se pudo consultar la dirección. Revisa tu conexión e inténtalo de nuevo.');
             return;
         }
         
