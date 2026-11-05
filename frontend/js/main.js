@@ -1,6 +1,6 @@
 // Archivo central JavaScript del FrontEnd. Encargada de la interacción usuario-servidor. Importa funciones y constantes del resto de módulos .js. Se ejecuta al cargar la página.
 import { calcularRuta, geocodificar, precargarMapa } from './api.js';
-import { DURACION_SPLASH_MS, LIMITE_DISTANCIA_METROS, MAX_PARADAS } from './config.js';
+import { DURACION_SPLASH_MS, EXTENSION_MAX_GRADOS, LIMITE_DISTANCIA_METROS, MAX_PARADAS } from './config.js';
 import { estado } from './estado.js';
 import {
     agregarEntrega, colocarAlmacen, dibujarRuta, distanciaAlAlmacen,
