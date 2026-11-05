@@ -27,7 +27,9 @@ def _cargar_grafo(puntos):
         return grafo.obtener_grafo(*caja_con_margen(puntos))
     except Exception:
         log.exception("Error al cargar el grafo")
-        raise ErrorNegocio("No se pudo descargar el mapa de calles. Revisa tu conexión.", 502)
+        raise ErrorNegocio(
+            "No se pudo obtener el mapa de calles de esa zona. "
+            "Inténtalo de nuevo o acerca los puntos a zonas con calles.", 502)
 
 
 def _dijkstra_por_nodo(adj, nodos):

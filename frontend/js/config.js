@@ -7,6 +7,7 @@ export const NOMINATIM_URL = 'https://nominatim.openstreetmap.org/search'; // Mo
 export const MARGEN_BUSQUEDA_GRADOS = 0.15; // Caja de búsqueda alrededor de la ciudad
 export const DURACION_SPLASH_MS = 3000; // Tiempo que dura lo que sale al inicio en ms
 export const MAX_PARADAS = 15; // Número máximo de entregas por viaje
+export const EXTENSION_MAX_GRADOS = 0.35; 
 
 export const PADDING_RUTA = {
     escritorio: { paddingTopLeft: [380, 50], paddingBottomRight: [50, 50] },

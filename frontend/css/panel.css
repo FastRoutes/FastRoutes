@@ -31,5 +31,5 @@
         background: var(--separador); margin: 8px auto 0;
     }
     .marca { padding-top: 10px; }
-    .leaflet-bottom.leaflet-right { display: none; }
+    .leaflet-bottom.leaflet-right { bottom: auto; top: 0; }
 }

@@ -10,7 +10,10 @@ import {
     $, actualizarContador, avisar, irAPaso, iniciarAutocompletado, iniciarSplash, mostrarMetricas,
 } from './panel.js';
 
+let calculando=false; // Variable de control para evitar que se ejecute varias veces la función de cálculo de ruta a la vez
+
 function navegar(paso) {
+    if (calculando) return; // Evita que se ejecute varias veces a la vez
     // Si el negocio ha sido confirmado (paso 2 en estado), se inicia la precarga del mapa alrededor de este.
     if (paso === 3 && estado.paso === 2) precargarMapa(estado.puntos[0], estado.ciudad.nombre);
     irAPaso(paso); // Se actualiza el estado a paso 3 (confirmación de entregas).
@@ -27,11 +30,30 @@ function reiniciar() { vaciarPuntos(); irAPaso(1); }
 
 // Interacción con marcadores de entrega (paso 3): si se quita uno, se actualiza el contador
 function alQuitarEntrega(marcador) {
+    if (calculando) return;
     if (estado.paso === 3 && quitarEntrega(marcador)) actualizarContador();
+}
+
+
+const fueraDeCiudad = (lat, lng) =>
+    mapa.distance([lat, lng], [estado.ciudad.lat, estado.ciudad.lng]) > estado.ciudad.radio_km * 1000;
+
+function superaExtension(lat, lng) {
+    const lngs = [...estado.puntos.map(p => p[0]), lng];
+    const lats = [...estado.puntos.map(p => p[1]), lat];
+    return Math.max(...lngs) - Math.min(...lngs) > EXTENSION_MAX_GRADOS
+        || Math.max(...lats) - Math.min(...lats) > EXTENSION_MAX_GRADOS;
 }
 
 // Aplica clic/dirección buscada según el paso actual (negocio / entrega).
 function colocarPunto(lat, lng) {
+    if (calculando) return false;
+    if ((estado.paso === 2 || estado.paso === 3) && fueraDeCiudad(lat, lng)) {
+        avisar(`Fuera de ${estado.ciudad.nombre}: el límite es ${estado.ciudad.radio_km} km desde el centro.`);
+        return false;
+    }
+    if (superaExtension(lat, lng)) { avisar('Las entregas quedarían demasiado separadas entre sí.'); return false; }
+    
     if (estado.paso === 2) {
         const fuera = estado.puntos.slice(1)
             .some(([ln, lt]) => mapa.distance([lat, lng], [lt, ln]) > LIMITE_DISTANCIA_METROS);
@@ -83,6 +105,8 @@ async function buscarDireccion(idInput) {
 
 // Función asíncrona: Calcula y dibuja la ruta óptima, muestra sus métricas y pasa al paso 4.
 async function alCalcularRuta() {
+    if (calculando) return; // Evita que se ejecute varias veces a la vez
+    calculando = true; // Marca que se está calculando la ruta
     const boton = $('btnCalcularRuta'); // Captura el botón de calcular ruta
     boton.disabled = true; // Lo deshabilita mientras procesa
     boton.textContent = 'Trazando ruta…'; // Texto temporal
@@ -95,6 +119,7 @@ async function alCalcularRuta() {
     } catch (error) {
         avisar(error.message); // Muestra el error en la interfaz
     } finally { // Se ejecuta SIEMPRE
+        calculando = false; // Desmarca que se está calculando la ruta
         boton.textContent = 'Calcular ruta óptima'; // Restaura el texto del botón
         actualizarContador(); // Actualiza el contador de entregas
     }

@@ -45,3 +45,6 @@
     transition: transform .5s var(--resorte), opacity .3s;
 }
 #aviso.visible { transform: translate(-50%, 0); opacity: 1; }
+@media (max-width: 600px) {
+    .lista { top: auto; bottom: calc(100% + 6px); }
+}
