@@ -91,7 +91,7 @@ function quitarRuta() {
 export function limpiarMapa() {
     estado.marcadores.forEach(m => mapa.removeLayer(m));
     // Reinicia ambos arrays
-    estado.marcadores = []; 
+    estado.marcadores = [];
     estado.puntos = [];
     quitarRuta();
 }

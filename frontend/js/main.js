@@ -53,7 +53,7 @@ function colocarPunto(lat, lng) {
         return false;
     }
     if (superaExtension(lat, lng)) { avisar('Las entregas quedarían demasiado separadas entre sí.'); return false; }
-    
+
     if (estado.paso === 2) {
         const fuera = estado.puntos.slice(1)
             .some(([ln, lt]) => mapa.distance([lat, lng], [lt, ln]) > LIMITE_DISTANCIA_METROS);
@@ -85,12 +85,12 @@ async function buscarDireccion(idInput) {
     try {
         let lugar;
         try {
-            lugar = await geocodificar(texto, estado.ciudad); // Espera la respuesta de geocodificación de la dirección ingresada en el input. 
+            lugar = await geocodificar(texto, estado.ciudad); // Espera la respuesta de geocodificación de la dirección ingresada en el input.
         } catch {
             avisar('No se pudo consultar la dirección. Revisa tu conexión e inténtalo de nuevo.');
             return;
         }
-        
+
         if (!lugar) { // Si no hay resultado...
             avisar(`No encontramos esa dirección en ${estado.ciudad.nombre}. Agrega el distrito.`);
             return;
@@ -103,7 +103,8 @@ async function buscarDireccion(idInput) {
     }
 }
 
-// Función asíncrona: Calcula y dibuja la ruta óptima, muestra sus métricas y pasa al paso 4.
+// Función asíncrona: Pide al servidor la ruta (Dijkstra -> grafo artificial -> Greedy + Or-opt),
+// la dibuja sobre las calles reales, muestra sus métricas y pasa al paso 4.
 async function alCalcularRuta() {
     if (calculando) return; // Evita que se ejecute varias veces a la vez
     calculando = true; // Marca que se está calculando la ruta
@@ -111,11 +112,11 @@ async function alCalcularRuta() {
     boton.disabled = true; // Lo deshabilita mientras procesa
     boton.textContent = 'Trazando ruta…'; // Texto temporal
     try { // Solicitud exitosa
-        const datos = await calcularRuta(estado.ciudad.nombre, estado.puntos); // Espera la respuesta del cálculo de ruta óptima
+        const datos = await calcularRuta(estado.ciudad.nombre, estado.puntos); // Espera la respuesta del cálculo de ruta
         dibujarRuta(datos.geometry); // Dibuja en el mapa
         numerarSegunOrden(datos.orden); // Numera los marcadores según el orden de la ruta
         mostrarMetricas(datos); // Muestra las métricas de la ruta (distancia, tiempos, etc.)
-        irAPaso(4); // Continúa al paso 4: ruta óptima calculada y mostrada.
+        irAPaso(4); // Continúa al paso 4: ruta calculada y mostrada.
     } catch (error) {
         avisar(error.message); // Muestra el error en la interfaz
     } finally { // Se ejecuta SIEMPRE
@@ -146,7 +147,7 @@ mapa.on('click', e => colocarPunto(e.latlng.lat, e.latlng.lng));
 });
 
 // Asignación de eventos a botones de acción.
-$('btnCalcularRuta').addEventListener('click', alCalcularRuta); // 
+$('btnCalcularRuta').addEventListener('click', alCalcularRuta); //
 $('btnReiniciar').addEventListener('click', reiniciar);
 $('btnNavegar').addEventListener('click', () =>
     avisar('La navegación paso a paso llegará en la siguiente versión.'));

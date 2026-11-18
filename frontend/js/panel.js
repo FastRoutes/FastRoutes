@@ -2,7 +2,7 @@ import { CIUDADES } from './ciudades.js'; // Importa la lista de ciudades con co
 import { estado } from './estado.js'; // Importa el estado compartido de la aplicación
 
 export const $ = id => document.getElementById(id); // Función para obtener elementos por ID
-const normalizar = s => s.normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().trim(); // Función que normaliza strings a solo minúsculas normales
+const normalizar = s => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase().trim(); // Función que normaliza strings a solo minúsculas normales
 
 // Navegación entre pasos del flujo de la aplciación
 export function irAPaso(paso) {
@@ -24,7 +24,9 @@ export function actualizarContador() {
 
 // Mostrar todas las métricas de la ruta generada: Distancia, paradas, tiempo de movimiento, tiempo de servicio y tiempo total.
 export function mostrarMetricas(datos) {
-    $('textoMetodo').textContent = `Orden ${datos.metodo}.`;
+    // Si Or-opt mejoró la solución inicial de Greedy, se indica cuánto redujo el tiempo de viaje.
+    const mejora = datos.mejora_or_opt_pct > 0 ? ` Or-opt redujo el tiempo de viaje en ${datos.mejora_or_opt_pct}%.` : '';
+    $('textoMetodo').textContent = `Orden hallado con ${datos.metodo}.${mejora}`;
     $('rDistancia').textContent = `${(datos.distancia_m / 1000).toFixed(2)} km`;
     $('rParadas').textContent = datos.paradas;
     $('rMovimiento').textContent = `${datos.duracion_movimiento_min} min`;
@@ -47,7 +49,7 @@ export function iniciarAutocompletado(alElegir) { // Función invocada cuando se
     const continuar = $('btnContinuarPaso1'); // Botón de continuar al paso 2
 
     // Cada vez que se teclea/borra...
-    entrada.addEventListener('input', () => { 
+    entrada.addEventListener('input', () => {
         const texto = normalizar(entrada.value); // Se normaliza el texto del input
         lista.replaceChildren(); // Elimina las sugerencias anteriores
         continuar.disabled = true; // Hasta que no se seleccione una ciudad, no se puede pulsar el botón

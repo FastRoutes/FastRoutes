@@ -24,7 +24,7 @@ async function postJSON(ruta, cuerpo, { timeoutMs = 120000 } = {}) {
 }
 
 
-// Función asíncrona: Envía la ciudad y los puntos; recibe un objeto con las métricas de la ruta óptima calculada por el servidor.
+// Función asíncrona: Envía la ciudad y los puntos; recibe un objeto con las métricas de la ruta calculada por el servidor (Dijkstra + Greedy + Or-opt).
 export const calcularRuta = (ciudad, puntos) => postJSON('/ruta', { ciudad, puntos });
 
 // Petición al servidor para que vaya descargando el mapa del almacén mientras el usuario sigue eligiendo.

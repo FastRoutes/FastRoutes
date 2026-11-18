@@ -6,9 +6,9 @@ INF = math.inf
 
 def dijkstra(adj, origen, objetivos=None):
     """
-    Nodos: u y v 
+    Nodos: u y v
     adj: grafo dirigido
-    Devuelve (tiempo, previo); 
+    Devuelve (tiempo, previo);
     previo[v] = (u, metros_arista, geometria).
     Si se dan 'objetivos', se detiene al haberlos fijado a todos.
     """
@@ -20,7 +20,7 @@ def dijkstra(adj, origen, objetivos=None):
 
     while cola:
         t, u = sacar(cola)
-        if t > tiempo[u]:      
+        if t > tiempo[u]:
             continue
         if pendientes is not None:
             pendientes.discard(u)

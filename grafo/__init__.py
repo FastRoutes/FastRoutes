@@ -10,10 +10,10 @@ from .modelo import Grafo
 __all__ = ["Grafo", "distancia_km", "obtener_grafo", "precargar"]
 
 log = logging.getLogger(__name__)
-PASO_GRADOS = 0.01  
+PASO_GRADOS = 0.01
 
 _cache = CacheGrafos(capacidad=4)
-_candado_descarga = threading.Lock()  
+_candado_descarga = threading.Lock()
 
 
 def _alinear(norte, sur, este, oeste):
@@ -28,7 +28,7 @@ def obtener_grafo(norte, sur, este, oeste):
     if grafo:
         return grafo
     with _candado_descarga:
-        grafo = _cache.buscar(caja) 
+        grafo = _cache.buscar(caja)
         if grafo:
             return grafo
         ampliada = _alinear(*caja)
