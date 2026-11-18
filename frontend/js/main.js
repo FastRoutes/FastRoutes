@@ -102,7 +102,21 @@ async function buscarDireccion(idInput) {
         buscando=false; // Desbloquea la función
     }
 }
-
+let ubicando = false;
+async function usarMiUbicacion() {
+    if (ubicando) return;
+    ubicando = true;
+    try {
+        const { lat, lng, precision } = await obtenerUbicacion();
+        if (!colocarPunto(lat, lng)) return;       // reutiliza TODAS tus validaciones (ciudad, radio, extensión)
+        mapa.flyTo([lat, lng], 16);
+        if (precision > 150) avisar(`Precisión baja (±${Math.round(precision)} m). Puedes arrastrar el punto tocando el mapa.`);
+    } catch (error) {
+        avisar(error.message);
+    } finally {
+        ubicando = false;
+    }
+}
 // Función asíncrona: Pide al servidor la ruta (Dijkstra -> grafo artificial -> Greedy + Or-opt),
 // la dibuja sobre las calles reales, muestra sus métricas y pasa al paso 4.
 async function alCalcularRuta() {
