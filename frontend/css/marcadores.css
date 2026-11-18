@@ -8,3 +8,14 @@
 .pin-almacen { width: 40px; height: 40px; background: var(--verde); }
 .pin-entrega { width: 32px; height: 32px; background: var(--azul); }
 .leaflet-tooltip { border: 0; border-radius: 10px; font: 500 13px var(--fuente); box-shadow: 0 4px 14px rgba(0, 0, 0, .2); }
+
+/* Marcador de la posición GPS del usuario */
+.pin-yo {
+    width: 18px; height: 18px; border-radius: 50%; background: var(--azul);
+    border: 3px solid #fff; box-shadow: 0 0 0 0 rgba(0, 122, 255, .5);
+    animation: pulso 2s infinite;
+}
+@keyframes pulso {
+    70%  { box-shadow: 0 0 0 14px rgba(0, 122, 255, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(0, 122, 255, 0); }
+}
