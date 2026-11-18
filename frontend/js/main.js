@@ -3,8 +3,8 @@ import { calcularRuta, geocodificar, precargarMapa } from './api.js';
 import { DURACION_SPLASH_MS, EXTENSION_MAX_GRADOS, LIMITE_DISTANCIA_METROS, MAX_PARADAS } from './config.js';
 import { estado } from './estado.js';
 import {
-    agregarEntrega, colocarAlmacen, dibujarRuta, distanciaAlAlmacen,
-    limpiarMapa, mapa, numerarSegunOrden, quitarEntrega,
+    agregarEntrega, colocarAlmacen, detenerSeguimiento, dibujarRuta, distanciaAlAlmacen,
+    iniciarSeguimiento, limpiarMapa, mapa, numerarSegunOrden, obtenerUbicacion, quitarEntrega, siguiendo,
 } from './mapa.js';
 import {
     $, actualizarContador, avisar, irAPaso, iniciarAutocompletado, iniciarSplash, mostrarMetricas,
@@ -26,7 +26,7 @@ function vaciarPuntos() {
 }
 
 // Reinicio total de la aplicación: limpieza y vuelta al paso 1
-function reiniciar() { vaciarPuntos(); irAPaso(1); }
+function reiniciar() { vaciarPuntos(); $('btnNavegar').textContent = 'Iniciar navegación'; irAPaso(1); }
 
 // Interacción con marcadores de entrega (paso 3): si se quita uno, se actualiza el contador
 function alQuitarEntrega(marcador) {
@@ -102,21 +102,24 @@ async function buscarDireccion(idInput) {
         buscando=false; // Desbloquea la función
     }
 }
+
+// Función asíncrona: Usa el GPS del dispositivo para colocar el negocio (paso 2).
 let ubicando = false;
 async function usarMiUbicacion() {
-    if (ubicando) return;
+    if (ubicando) return; // Evita que se ejecute varias veces a la vez
     ubicando = true;
     try {
-        const { lat, lng, precision } = await obtenerUbicacion();
-        if (!colocarPunto(lat, lng)) return;       // reutiliza TODAS tus validaciones (ciudad, radio, extensión)
-        mapa.flyTo([lat, lng], 16);
-        if (precision > 150) avisar(`Precisión baja (±${Math.round(precision)} m). Puedes arrastrar el punto tocando el mapa.`);
+        const { lat, lng, precision } = await obtenerUbicacion(); // Pide la posición al navegador
+        if (!colocarPunto(lat, lng)) return; // Reutiliza todas las validaciones (ciudad, radio, extensión)
+        mapa.flyTo([lat, lng], 16); // Centra el mapa en la ubicación
+        if (precision > 150) avisar(`Precisión baja (±${Math.round(precision)} m). Puedes tocar el mapa para ajustar el punto.`);
     } catch (error) {
         avisar(error.message);
     } finally {
         ubicando = false;
     }
 }
+
 // Función asíncrona: Pide al servidor la ruta (Dijkstra -> grafo artificial -> Greedy + Or-opt),
 // la dibuja sobre las calles reales, muestra sus métricas y pasa al paso 4.
 async function alCalcularRuta() {
@@ -161,9 +164,20 @@ mapa.on('click', e => colocarPunto(e.latlng.lat, e.latlng.lng));
 });
 
 // Asignación de eventos a botones de acción.
-$('btnCalcularRuta').addEventListener('click', alCalcularRuta); //
+$('btnCalcularRuta').addEventListener('click', alCalcularRuta);
 $('btnReiniciar').addEventListener('click', reiniciar);
-$('btnNavegar').addEventListener('click', () =>
-    avisar('La navegación paso a paso llegará en la siguiente versión.'));
+$('btnUbicacionNegocio').addEventListener('click', usarMiUbicacion);
+
+// Paso 4: activa/desactiva el seguimiento GPS en vivo sobre la ruta.
+$('btnNavegar').addEventListener('click', () => {
+    const boton = $('btnNavegar');
+    if (siguiendo()) {
+        detenerSeguimiento();
+        boton.textContent = 'Iniciar navegación';
+    } else {
+        iniciarSeguimiento(msg => { avisar(msg); boton.textContent = 'Iniciar navegación'; });
+        boton.textContent = 'Detener seguimiento';
+    }
+});
 
 irAPaso(1); // Inicialización de la interfaz en paso 1.
