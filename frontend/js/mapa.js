@@ -89,8 +89,8 @@ function quitarRuta() {
 
 // Se borran todos los marcadores y puntos del estado compartido: reinicio. Se borra la ruta existente.
 export function limpiarMapa() {
+    detenerSeguimiento(); 
     estado.marcadores.forEach(m => mapa.removeLayer(m));
-    // Reinicia ambos arrays
     estado.marcadores = [];
     estado.puntos = [];
     quitarRuta();
