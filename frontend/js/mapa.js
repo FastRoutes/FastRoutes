@@ -95,3 +95,53 @@ export function limpiarMapa() {
     estado.puntos = [];
     quitarRuta();
 }
+// ---------- GPS ----------
+const MENSAJES_GPS = {
+    1: 'Permiso de ubicación denegado. Actívalo en la configuración del navegador.',
+    2: 'No se pudo determinar tu ubicación. Revisa que el GPS esté activo.',
+    3: 'La ubicación tardó demasiado. Inténtalo de nuevo.',
+};
+const iconoYo = L.divIcon({
+    className: '', html: '<div class="pin-yo"></div>', iconSize: [18, 18], iconAnchor: [9, 9],
+});
+let marcadorYo = null, circuloPrecision = null, idSeguimiento = null;
+
+// Posición única: devuelve { lat, lng, precision (m) }
+export function obtenerUbicacion() {
+    return new Promise((resolver, rechazar) => {
+        if (!('geolocation' in navigator)) return rechazar(new Error('Tu navegador no soporta GPS.'));
+        navigator.geolocation.getCurrentPosition(
+            p => resolver({ lat: p.coords.latitude, lng: p.coords.longitude, precision: p.coords.accuracy }),
+            e => rechazar(new Error(MENSAJES_GPS[e.code] || 'No se pudo obtener tu ubicación.')),
+            { enableHighAccuracy: true, timeout: 10000, maximumAge: 0 },
+        );
+    });
+}
+
+// Seguimiento en vivo (paso 4)
+export function iniciarSeguimiento(alError) {
+    if (idSeguimiento !== null) return;
+    idSeguimiento = navigator.geolocation.watchPosition(p => {
+        const ll = [p.coords.latitude, p.coords.longitude];
+        if (!marcadorYo) {
+            circuloPrecision = L.circle(ll, { radius: p.coords.accuracy, color: '#007aff', weight: 1, fillOpacity: .1, interactive: false }).addTo(mapa);
+            marcadorYo = L.marker(ll, { icon: iconoYo, interactive: false, zIndexOffset: 1000 }).addTo(mapa);
+        } else {
+            marcadorYo.setLatLng(ll);
+            circuloPrecision.setLatLng(ll).setRadius(p.coords.accuracy);
+        }
+        mapa.panTo(ll);
+    }, e => {
+        detenerSeguimiento();
+        alError(MENSAJES_GPS[e.code] || 'Se perdió la señal de GPS.');
+    }, { enableHighAccuracy: true, maximumAge: 2000, timeout: 15000 });
+}
+
+export function detenerSeguimiento() {
+    if (idSeguimiento !== null) navigator.geolocation.clearWatch(idSeguimiento);
+    idSeguimiento = null;
+    [marcadorYo, circuloPrecision].forEach(c => c && mapa.removeLayer(c));
+    marcadorYo = circuloPrecision = null;
+}
+
+export const siguiendo = () => idSeguimiento !== null;
