@@ -89,12 +89,14 @@ function quitarRuta() {
 
 // Se borran todos los marcadores y puntos del estado compartido: reinicio. Se borra la ruta existente.
 export function limpiarMapa() {
-    detenerSeguimiento(); 
+    detenerSeguimiento(); // Apaga el GPS en vivo si estaba activo
     estado.marcadores.forEach(m => mapa.removeLayer(m));
+    // Reinicia ambos arrays
     estado.marcadores = [];
     estado.puntos = [];
     quitarRuta();
 }
+
 // ---------- GPS ----------
 const MENSAJES_GPS = {
     1: 'Permiso de ubicación denegado. Actívalo en la configuración del navegador.',
@@ -121,6 +123,7 @@ export function obtenerUbicacion() {
 // Seguimiento en vivo (paso 4)
 export function iniciarSeguimiento(alError) {
     if (idSeguimiento !== null) return;
+    if (!('geolocation' in navigator)) { alError('Tu navegador no soporta GPS.'); return; }
     idSeguimiento = navigator.geolocation.watchPosition(p => {
         const ll = [p.coords.latitude, p.coords.longitude];
         if (!marcadorYo) {
