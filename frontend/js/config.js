@@ -8,10 +8,7 @@ export const MARGEN_BUSQUEDA_GRADOS = 0.15; // Caja de búsqueda alrededor de la
 export const DURACION_SPLASH_MS = 3000; // Tiempo que dura lo que sale al inicio en ms
 export const MAX_PARADAS = 15; // Número máximo de entregas por viaje
 export const EXTENSION_MAX_GRADOS = 0.35;
-<<<<<<< HEAD
-=======
 export const UMBRAL_LLEGADA_M = 30; // Distancia (m) a la que se considera que llegaste a una parada
->>>>>>> a6b004a (Cambios para ubicacion)
 
 export const PADDING_RUTA = {
     escritorio: { paddingTopLeft: [380, 50], paddingBottomRight: [50, 50] },

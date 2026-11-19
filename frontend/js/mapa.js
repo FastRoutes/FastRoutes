@@ -143,13 +143,8 @@ export function obtenerUbicacion() {
     });
 }
 
-<<<<<<< HEAD
-// Seguimiento en vivo (paso 4)
-export function iniciarSeguimiento(alError) {
-=======
 // Seguimiento en vivo (paso 4). alPosicion(lat, lng, precision) se llama con cada lectura del GPS.
 export function iniciarSeguimiento(alError, alPosicion) {
->>>>>>> a6b004a (Cambios para ubicacion)
     if (idSeguimiento !== null) return;
     if (!('geolocation' in navigator)) { alError('Tu navegador no soporta GPS.'); return; }
     idSeguimiento = navigator.geolocation.watchPosition(p => {
@@ -162,10 +157,7 @@ export function iniciarSeguimiento(alError, alPosicion) {
             circuloPrecision.setLatLng(ll).setRadius(p.coords.accuracy);
         }
         mapa.panTo(ll);
-<<<<<<< HEAD
-=======
         if (alPosicion) alPosicion(ll[0], ll[1], p.coords.accuracy);
->>>>>>> a6b004a (Cambios para ubicacion)
     }, e => {
         detenerSeguimiento();
         alError(MENSAJES_GPS[e.code] || 'Se perdió la señal de GPS.');
@@ -179,8 +171,4 @@ export function detenerSeguimiento() {
     marcadorYo = circuloPrecision = null;
 }
 
-<<<<<<< HEAD
 export const siguiendo = () => idSeguimiento !== null;
-=======
-export const siguiendo = () => idSeguimiento !== null;
->>>>>>> a6b004a (Cambios para ubicacion)

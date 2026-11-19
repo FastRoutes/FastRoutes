@@ -1,30 +1,19 @@
 // Archivo central JavaScript del FrontEnd. Encargada de la interacción usuario-servidor. Importa funciones y constantes del resto de módulos .js. Se ejecuta al cargar la página.
 import { calcularRuta, geocodificar, precargarMapa } from './api.js';
-<<<<<<< HEAD
-import { DURACION_SPLASH_MS, EXTENSION_MAX_GRADOS, LIMITE_DISTANCIA_METROS, MAX_PARADAS } from './config.js';
-import { estado } from './estado.js';
-import {
-    agregarEntrega, colocarAlmacen, detenerSeguimiento, dibujarRuta, distanciaAlAlmacen,
-    iniciarSeguimiento, limpiarMapa, mapa, numerarSegunOrden, obtenerUbicacion, quitarEntrega, siguiendo,
-=======
 import { DURACION_SPLASH_MS, EXTENSION_MAX_GRADOS, LIMITE_DISTANCIA_METROS, MAX_PARADAS, UMBRAL_LLEGADA_M } from './config.js';
 import { estado } from './estado.js';
 import {
     agregarEntrega, avanzarParada, colocarAlmacen, detenerSeguimiento, dibujarRuta, distanciaAlAlmacen,
     distanciaAMarcador, iniciarSeguimiento, limpiarMapa, mapa, numerarSegunOrden, obtenerUbicacion,
     quitarEntrega, siguiendo,
->>>>>>> a6b004a (Cambios para ubicacion)
 } from './mapa.js';
 import {
     $, actualizarContador, avisar, irAPaso, iniciarAutocompletado, iniciarSplash, mostrarMetricas, mostrarSiguiente,
 } from './panel.js';
 
-<<<<<<< HEAD
-=======
 const TEXTO_SEGUIR = 'Seguir mi ubicación';
 const TEXTO_DETENER = 'Detener seguimiento';
 
->>>>>>> a6b004a (Cambios para ubicacion)
 let calculando=false; // Variable de control para evitar que se ejecute varias veces la función de cálculo de ruta a la vez
 
 function navegar(paso) {
@@ -41,11 +30,7 @@ function vaciarPuntos() {
 }
 
 // Reinicio total de la aplicación: limpieza y vuelta al paso 1
-<<<<<<< HEAD
-function reiniciar() { vaciarPuntos(); $('btnNavegar').textContent = 'Iniciar navegación'; irAPaso(1); }
-=======
 function reiniciar() { vaciarPuntos(); $('btnNavegar').textContent = TEXTO_SEGUIR; mostrarSiguiente('-'); irAPaso(1); }
->>>>>>> a6b004a (Cambios para ubicacion)
 
 // Interacción con marcadores de entrega (paso 3): si se quita uno, se actualiza el contador
 function alQuitarEntrega(marcador) {
@@ -152,10 +137,7 @@ async function alCalcularRuta() {
         dibujarRuta(datos.geometry); // Dibuja en el mapa
         numerarSegunOrden(datos.orden); // Numera los marcadores según el orden de la ruta
         mostrarMetricas(datos); // Muestra las métricas de la ruta (distancia, tiempos, etc.)
-<<<<<<< HEAD
-=======
         actualizarSiguiente(null); // Muestra "Parada 1 de N"
->>>>>>> a6b004a (Cambios para ubicacion)
         irAPaso(4); // Continúa al paso 4: ruta calculada y mostrada.
     } catch (error) {
         avisar(error.message); // Muestra el error en la interfaz
@@ -224,21 +206,6 @@ mapa.on('click', e => colocarPunto(e.latlng.lat, e.latlng.lng));
 $('btnCalcularRuta').addEventListener('click', alCalcularRuta);
 $('btnReiniciar').addEventListener('click', reiniciar);
 $('btnUbicacionNegocio').addEventListener('click', usarMiUbicacion);
-<<<<<<< HEAD
-
-// Paso 4: activa/desactiva el seguimiento GPS en vivo sobre la ruta.
-$('btnNavegar').addEventListener('click', () => {
-    const boton = $('btnNavegar');
-    if (siguiendo()) {
-        detenerSeguimiento();
-        boton.textContent = 'Iniciar navegación';
-    } else {
-        iniciarSeguimiento(msg => { avisar(msg); boton.textContent = 'Iniciar navegación'; });
-        boton.textContent = 'Detener seguimiento';
-    }
-});
-=======
->>>>>>> a6b004a (Cambios para ubicacion)
 
 // Paso 4: activa/desactiva el seguimiento GPS en vivo sobre la ruta.
 $('btnNavegar').addEventListener('click', () => {
