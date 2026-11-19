@@ -34,6 +34,11 @@ export function mostrarMetricas(datos) {
     $('rTotal').textContent = `${datos.tiempo_total_min} min`;
 }
 
+// Texto de la fila "Siguiente" del paso 4 (parada actual, distancia, o regreso al negocio).
+export function mostrarSiguiente(texto) {
+    $('rSiguiente').textContent = texto;
+}
+
 let temporizadorAviso; // Guardará el temporizador
 export function avisar(mensaje) {
     const aviso = $('aviso'); // Busca el elemento "aviso"

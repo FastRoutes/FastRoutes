@@ -13,8 +13,9 @@ const iconoAlmacen = L.divIcon({
     className: '', html: `<div class="pin pin-almacen">${ICONO_CASA}</div>`,
     iconSize: [40, 40], iconAnchor: [20, 20],
 });
-const iconoEntrega = n => L.divIcon({ //
-    className: '', html: `<div class="pin pin-entrega">${n}</div>`, // Con n se enumeran los puntos de entrega
+// clase opcional: 'pin-siguiente' (próxima parada) o 'pin-hecha' (ya entregada)
+const iconoEntrega = (n, clase = '') => L.divIcon({
+    className: '', html: `<div class="pin pin-entrega ${clase}">${n}</div>`, // Con n se enumeran los puntos de entrega
     iconSize: [32, 32], iconAnchor: [16, 16],
 });
 
@@ -32,6 +33,11 @@ export function colocarAlmacen(lat, lng) {
 // Función que calcula la distancia en m desde una posición hacia el almacén (útil para validación de radio).
 export function distanciaAlAlmacen(lat, lng) {
     return mapa.distance(estado.marcadores[0].getLatLng(), [lat, lng]);
+}
+
+// Distancia en m desde una posición hasta el marcador de índice `indice` (0 = almacén).
+export function distanciaAMarcador(indice, lat, lng) {
+    return mapa.distance(estado.marcadores[indice].getLatLng(), [lat, lng]);
 }
 
 // Agrega un marcador de entrega en el mapa y lo guarda en el estado compartido. Parámetro alHacerClic: función ejecutada al hacer clic sobre el marcador.
@@ -61,13 +67,28 @@ export function quitarEntrega(marcador) {
     return true;
 }
 
-// Numera los marcadores según el orden óptimo de visita.
+// Numera los marcadores según el orden óptimo de visita y deja la primera parada como "siguiente".
 export function numerarSegunOrden(orden) {
-    orden.forEach((indice, posicion) => { // Recorrido del array orden de índices de marcadores
+    estado.orden = orden; // Se guarda el orden para el seguimiento GPS
+    estado.siguiente = 0; // Aún no se entregó ninguna parada
+    pintarProgreso();
+}
+
+// Redibuja los marcadores según el avance: entregadas (gris), siguiente (resaltada) y pendientes.
+export function pintarProgreso() {
+    estado.orden.forEach((indice, posicion) => { // Recorrido del array orden de índices de marcadores
         const m = estado.marcadores[indice]; // Obtiene el marcador correspondiente al índice
-        m.setIcon(iconoEntrega(posicion + 1)); // Actualiza el icono del marcador con el nuevo número de parada
-        m.setTooltipContent(`Parada ${posicion + 1}`); // Actualiza el contenido del tooltip del marcador
+        const hecha = posicion < estado.siguiente;
+        const clase = hecha ? 'pin-hecha' : posicion === estado.siguiente ? 'pin-siguiente' : '';
+        m.setIcon(iconoEntrega(posicion + 1, clase)); // Actualiza el icono del marcador con el nuevo número de parada
+        m.setTooltipContent(hecha ? `Parada ${posicion + 1} · entregada` : `Parada ${posicion + 1}`); // Actualiza el tooltip
     });
+}
+
+// Marca la parada actual como entregada y pasa a la siguiente.
+export function avanzarParada() {
+    estado.siguiente++;
+    pintarProgreso();
 }
 
 export function dibujarRuta(geometry) {
@@ -94,6 +115,8 @@ export function limpiarMapa() {
     // Reinicia ambos arrays
     estado.marcadores = [];
     estado.puntos = [];
+    estado.orden = [];
+    estado.siguiente = 0;
     quitarRuta();
 }
 
@@ -120,8 +143,13 @@ export function obtenerUbicacion() {
     });
 }
 
+<<<<<<< HEAD
 // Seguimiento en vivo (paso 4)
 export function iniciarSeguimiento(alError) {
+=======
+// Seguimiento en vivo (paso 4). alPosicion(lat, lng, precision) se llama con cada lectura del GPS.
+export function iniciarSeguimiento(alError, alPosicion) {
+>>>>>>> a6b004a (Cambios para ubicacion)
     if (idSeguimiento !== null) return;
     if (!('geolocation' in navigator)) { alError('Tu navegador no soporta GPS.'); return; }
     idSeguimiento = navigator.geolocation.watchPosition(p => {
@@ -134,6 +162,10 @@ export function iniciarSeguimiento(alError) {
             circuloPrecision.setLatLng(ll).setRadius(p.coords.accuracy);
         }
         mapa.panTo(ll);
+<<<<<<< HEAD
+=======
+        if (alPosicion) alPosicion(ll[0], ll[1], p.coords.accuracy);
+>>>>>>> a6b004a (Cambios para ubicacion)
     }, e => {
         detenerSeguimiento();
         alError(MENSAJES_GPS[e.code] || 'Se perdió la señal de GPS.');
@@ -147,4 +179,8 @@ export function detenerSeguimiento() {
     marcadorYo = circuloPrecision = null;
 }
 
+<<<<<<< HEAD
 export const siguiendo = () => idSeguimiento !== null;
+=======
+export const siguiendo = () => idSeguimiento !== null;
+>>>>>>> a6b004a (Cambios para ubicacion)

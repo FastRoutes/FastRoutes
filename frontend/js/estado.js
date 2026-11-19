@@ -8,4 +8,6 @@ export const estado = {
     puntos: [], // Lista vacía que almacenará pares [longitud, latitud] de los puntos que se van agregando
     marcadores: [], // Lista vacía que almacenará los marcadores de Leaflet (librería de mapa interactivo) que se van agregando
     capaRuta: null, // No hay ruta inicial
+    orden: [], // Orden óptimo de visita: índices de marcadores (sin el almacén), devuelto por el servidor
+    siguiente: 0, // Posición dentro de `orden` de la próxima parada por entregar
 };
